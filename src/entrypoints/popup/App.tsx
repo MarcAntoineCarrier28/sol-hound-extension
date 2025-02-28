@@ -1,33 +1,67 @@
-import { useState } from 'react';
-import reactLogo from '@/assets/react.svg';
-import wxtLogo from '/wxt.svg';
 import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
     <>
-      <div>
-        <a href="https://wxt.dev" target="_blank" rel="noopener">
-          <img src={wxtLogo} className="logo" alt="WXT logo" />
-        </a>
-        <a href="https://react.dev" target="_blank" rel="noopener">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>WXT + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+      <div className="header">
+        <div className="logo-container">
+            <img src="/icon/48.png" alt="Solhound Logo" className="logo"/>
+            <span className="title">Solhound</span>
+        </div>
+        <button className="support-btn" id="supportButton">
+            <img src="/icon/support.png" alt="Support"/>
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the WXT and React logos to learn more
-      </p>
+    </div>
+
+    <div className="section">
+        <div className="feature">
+            <span>Highlight CA's</span>
+            <label className="switch">
+                <input type="checkbox" id="toggleHighlight" aria-label="Toggle Highlight Contract Addresses"/>
+                <span className="slider round"></span>
+            </label>
+        </div>
+    </div>
+
+    <div className="section premium-section">
+        <div className="premium-title">Unlock with Premium</div>
+
+        <div className="feature locked">
+            <div className="feature-text">
+                <span className="lock-icon">🔒</span>
+                <span>One-click trading</span>
+            </div>
+            <label className="switch">
+                <input type="checkbox" disabled aria-label="One-click trading toggle"/>
+                <span className="slider round"></span>
+            </label>
+        </div>
+
+        <div className="feature locked">
+            <div className="feature-text">
+                <span className="lock-icon">🔒</span>
+                <span>Customization</span>
+            </div>
+            <label className="switch">
+                <input type="checkbox" disabled aria-label="Customization toggle"/>
+                <span className="slider round"></span>
+            </label>
+        </div>
+
+        <div className="feature locked">
+            <div className="feature-text">
+                <span className="lock-icon">🔒</span>
+                <span>Analytics</span>
+            </div>
+            <label className="switch">
+                <input type="checkbox" disabled aria-label="Analytics toggle"/>
+                <span className="slider round"></span>
+            </label>
+        </div>
+    </div>
+
+    <button id="upgrade" className="btn-primary">Go Premium</button>
     </>
   );
 }

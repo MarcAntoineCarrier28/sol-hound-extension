@@ -1,0 +1,45 @@
+.pump-highlight {
+    background-image: linear-gradient(to right, #00FF00 15%, #FFFFFF 33%, #FFFFFF 66%, #00FF00 85%);
+    background-size: 300% 100%;
+    background-position: 0 0;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 4px;
+    font-weight: bold;
+    color: white;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: pump-sweep 0.75s infinite linear;
+  }
+  
+  @keyframes pump-sweep {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 100% 50%;
+    }
+  }
+  
+  .solana-highlight {
+    background-image: linear-gradient(to right, #9945FF 15%, #14F195 33%, #00FFC2 66%, #9945FF 85%);
+    background-size: 300% 100%;
+    background-position: 0 0;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 4px;
+    font-weight: bold;
+    color: white;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: solana-sweep 0.75s infinite linear;
+  }
+  
+  @keyframes solana-sweep {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 100% 50%;
+    }
+  }
