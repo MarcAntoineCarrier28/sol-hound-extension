@@ -1,5 +1,5 @@
 {
-  "name": "Solhound — scan and interact with Solana CA's across the web",
+  "name": "Solhound — Scan and interact with Solana CA's across the web",
   "description": "Detects and highlights Solana contract addresses on web pages.",
   "private": true,
   "version": "0.0.1",
@@ -18,6 +18,7 @@
     "postinstall": "wxt prepare"
   },
   "dependencies": {
+    "@wxt-dev/storage": "^1.1.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
