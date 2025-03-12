@@ -9,20 +9,30 @@ const LoginStatus: React.FC = () => {
     window.open(baseURL + '/sign-in', '_blank');
   };
 
+  const handleGetPremiumClick = () => {
+    window.open(baseURL + '/#pricing', '_blank');
+  };
+
   if (loading) return <p>Loading...</p>;
 
   if (!authStatus.session) {
-    return <button onClick={handleLoginClick}>Login</button>;
+    return <button className='btn-primary' onClick={handleLoginClick}>Login</button>;
+  }
+
+  if (!authStatus.subscription) {
+    return <button className='btn-primary' onClick={handleLoginClick}>Login</button>;
   }
 
   return (
     <div>
       <p>
-        Logged in as: <strong>{authStatus.session.user.email}</strong>
+        Welcome <strong>{authStatus.session.user.email}</strong>
       </p>
-      <p>
-        Subscription status: <strong>{authStatus.subscription}</strong>
-      </p>
+      {authStatus.subscription ? (
+        <div>Thank you for being a Pro member</div>
+      ) : (
+        <button className='btn-primary' onClick={handleGetPremiumClick}>Upgrade to PRO now</button>
+      )}
     </div>
   );
 };

@@ -1,3 +1,5 @@
+import { getStoredFeatureToggles } from "@/utils/feature-storage";
+
 const contractAddressRegex = /\b[1-9A-HJ-NP-Za-km-z]{32,44}(pump)?\b/g;
 
 interface ReplaceItem {
@@ -6,7 +8,10 @@ interface ReplaceItem {
   parent: Node;
 }
 
-const highlightAddresses = (node: Node = document.body): void => {
+const highlightAddresses = async (node: Node = document.body): Promise<void> => {
+
+    const featureToggles = await getStoredFeatureToggles();
+    if (!featureToggles.highlightCAs) return;
 
     if (!node) return;
     const walker = document.createTreeWalker(

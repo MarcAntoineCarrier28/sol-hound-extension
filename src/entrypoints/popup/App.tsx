@@ -4,9 +4,10 @@ import Header from '@/components/header';
 import FeatureToggle from '@/components/feature-toggle';
 import PremiumFeature from '@/components/premium-feature';
 import LoginStatus from '@/components/login-status';
+import { useFeatureToggles } from '@/hooks/useFeatureToggles';
 
 const App: React.FC = () => {
-  const [highlightEnabled, setHighlightEnabled] = useState(false);
+  const { toggles, updateToggle } = useFeatureToggles();
 
   return (
     <>
@@ -15,9 +16,8 @@ const App: React.FC = () => {
       <div className="section">
         <FeatureToggle
           label="Highlight CA's"
-          checked={highlightEnabled}
-          onChange={setHighlightEnabled}
-          ariaLabel="Toggle Highlight Contract Addresses"
+          checked={toggles.highlightCAs}
+          onChange={(value) => updateToggle("highlightCAs", value)}
         />
       </div>
 
@@ -27,10 +27,6 @@ const App: React.FC = () => {
         <PremiumFeature label="Customization" />
         <PremiumFeature label="Analytics" />
       </div>
-
-      <button id="upgrade" className="btn-primary">
-        Go Premium
-      </button>
 
       <div className="auth-status">
         <LoginStatus />

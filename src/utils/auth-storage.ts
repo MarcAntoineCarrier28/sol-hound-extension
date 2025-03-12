@@ -1,5 +1,5 @@
 // src/utils/authStorage.ts
-import { storage } from "@wxt-dev/storage";
+import { storage } from '@wxt-dev/storage';
 
 export interface Session {
   user: {
@@ -20,5 +20,6 @@ export async function getStoredAuthStatus(): Promise<AuthStatus> {
 }
 
 export async function setStoredAuthStatus(authStatus: AuthStatus): Promise<void> {
+  console.log('Setting auth status:', authStatus);
   await storage.setItem('local:authStatus', authStatus);
 }

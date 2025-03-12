@@ -1,8 +1,9 @@
 // src/hooks/useAuthStatus.ts
 import { useState, useEffect } from 'react';
 import { getStoredAuthStatus, setStoredAuthStatus, AuthStatus } from '../utils/auth-storage';
+import { baseURL } from '@/data/const';
 
-const API_ENDPOINT = 'https://your-nextjs-app.com/api/auth/status'; // Update with your endpoint
+const API_ENDPOINT = baseURL + '/auth/status'; // Update with your endpoint
 
 export function useAuthStatus(pollInterval = 300000) {
   const [authStatus, setAuthStatusState] = useState<AuthStatus>({ session: null, subscription: null });
@@ -10,11 +11,14 @@ export function useAuthStatus(pollInterval = 300000) {
 
   const fetchStatus = async () => {
     try {
+      console.log('Fetching auth status...');
       const response = await fetch(API_ENDPOINT, {
+        method: 'GET',
         credentials: 'include', // Ensures cookies are sent with the request
       });
 
       if (response.ok) {
+        console.log('Fetched auth status');
         const data = await response.json();
         const newStatus: AuthStatus = {
           session: data.session,
@@ -23,6 +27,7 @@ export function useAuthStatus(pollInterval = 300000) {
         setAuthStatusState(newStatus);
         await setStoredAuthStatus(newStatus);
       } else {
+        console.log('Problem fetching auth status');
         // In case of an error (e.g., 401 Unauthorized)
         const newStatus: AuthStatus = { session: null, subscription: null };
         setAuthStatusState(newStatus);
