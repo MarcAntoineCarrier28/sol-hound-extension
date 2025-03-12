@@ -13,4 +13,8 @@ export default defineConfig({
     chromiumArgs: ['--user-data-dir=./.wxt/chrome-data'],
 },
   modules: ['@wxt-dev/module-react'],
+  manifest: {
+    permissions: ['storage'],
+    host_permissions: ["*://*/*"],
+  },
 });
