@@ -187,3 +187,91 @@ input:checked + .slider:before {
 .btn-primary:hover {
   background-color: #14F195;
 }
+
+.redirect-selector {
+  background-color: #2a2a2a;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.redirect-selector:focus {
+  outline: none;
+  border-color: #9945FF;
+}
+
+.redirect-selector:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.redirect-selector option {
+  background-color: #1a1a1a;
+  color: white;
+}
+
+.premium-feature-indicator {
+  background-color:rgb(250, 212, 0);
+  color: black;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.premium-feature-children {
+  margin-left: 0; /* Remove left margin */
+  margin-top: 8px;
+  padding-top: 8px;
+  width: 100%; /* Full width for children */
+  border-top: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.trading-platform-selector {
+  background-color: rgba(42, 42, 42, 0.6); /* Darker background to appear nested */
+  padding: 6px 8px; /* Consistent padding */
+  margin-left: 16px; /* Indent to show hierarchy */
+  margin-right: 0;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  border-left: 2px solid #9945FF; /* Purple accent line to show relation to parent */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: calc(100% - 18px); /* Account for the left margin */
+}
+
+.trading-platform-selector.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Add a label for the trading platform selector */
+.trading-platform-selector:before {
+  font-size: 13px;
+  opacity: 0.8;
+  margin-right: 8px;
+}
+
+/* Improve the select dropdown styling for the submenu */
+.trading-platform-selector .redirect-selector {
+  background-color: #333;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 13px;
+  border: 1px solid #444;
+  flex-grow: 1;
+  max-width: 130px;
+}
+
+/* Adjust the nested feature style to be more obvious as a child */
+.feature .feature {
+  background-color: rgba(42, 42, 42, 0.6);
+  margin-top: 6px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

@@ -1,4 +1,6 @@
-import { getStoredFeatureToggles } from "@/utils/feature-storage";
+import { getStoredFeatureToggles, RedirectOption, TradingPlatformOption } from "@/utils/feature-storage";
+import { getStoredAuthStatus } from "@/utils/auth-storage";
+import { explorer1, explorer2, explorer3, explorer4, tradingPlatform1, tradingPlatform2, tradingPlatform3, tradingPlatform4 } from "@/data/const";
 
 const contractAddressRegex = /\b[1-9A-HJ-NP-Za-km-z]{32,44}(pump)?\b/g;
 
@@ -8,10 +10,47 @@ interface ReplaceItem {
   parent: Node;
 }
 
-const highlightAddresses = async (node: Node = document.body): Promise<void> => {
+const getRedirectUrl = (address: string, preference: RedirectOption): string => {
+  
+  switch (preference) {
+    case explorer1:
+      return `https://solscan.io/token/${address}`;
+    case explorer2:
+      return `https://dexscreener.com/solana/${address}`;
+    case explorer3:
+      return `https://solana.fm/address/${address}`;
+    case explorer4:
+      return `https://birdeye.so/token/${address}`;
+    default:
+      return `https://solscan.io/token/${address}`;
+  }
+};
 
+const getTradingPlatformUrl = (address: string, platform: TradingPlatformOption): string => {
+  if (address.includes("pump")) {
+    return `https://pump.fun/coin/${address}`;
+  }
+  switch (platform) {
+    case tradingPlatform1:
+      return `https://raydium.io/swap/?inputCurrency=SOL&outputCurrency=${address}`;
+    case tradingPlatform2:
+      return `https://photon-sol.tinyastro.io/en/lp/${address}`;
+    case tradingPlatform3:
+      return `https://neo.bullx.io/terminal?chainId=1399811149&address=${address}`;
+    case tradingPlatform4:
+      return `https://jup.ag/tokens/${address}`;
+    default:
+      return `https://raydium.io/swap/?inputCurrency=SOL&outputCurrency=${address}`;
+  }
+};
+
+const highlightAddresses = async (node: Node = document.body): Promise<void> => {
     const featureToggles = await getStoredFeatureToggles();
     if (!featureToggles.highlightCAs) return;
+
+    // Check auth status to determine if user has premium features
+    const authStatus = await getStoredAuthStatus();
+    const hasPremium = !!authStatus.subscription;
 
     if (!node) return;
     const walker = document.createTreeWalker(
@@ -49,10 +88,19 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
           span.className = address.includes("pump")
             ? "pump-highlight animated-highlight"
             : "solana-highlight animated-highlight";
+          
           span.addEventListener("click", () => {
-            const url = address.includes("pump")
-              ? `https://pump.fun/coin/${address}`
-              : `https://solscan.io/token/${address}`;
+            let url;
+            
+            // Determine where to redirect based on premium status and toggles
+            if (hasPremium && featureToggles.enableTrading) {
+              // Use trading platform for premium users with trading enabled
+              url = getTradingPlatformUrl(address, featureToggles.tradingPlatformPreference);
+            } else {
+              // Otherwise use explorer
+              url = getRedirectUrl(address, featureToggles.redirectPreference);
+            }
+            
             window.open(url, "_blank");
           });
           return span;
@@ -87,4 +135,4 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
     });
   }
 
-  export default highlightAddresses;
+export default highlightAddresses;

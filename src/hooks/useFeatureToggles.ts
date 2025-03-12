@@ -1,6 +1,13 @@
 // src/hooks/useFeatureToggles.ts
 import { useState, useEffect } from "react";
-import { getStoredFeatureToggles, setStoredFeatureToggles, FeatureToggles } from "@/utils/feature-storage";
+import { 
+  getStoredFeatureToggles, 
+  setStoredFeatureToggles, 
+  FeatureToggles,
+  RedirectOption,
+  TradingPlatformOption
+} from "@/utils/feature-storage";
+import { explorer1, tradingPlatform1 } from "@/data/const";
 
 export function useFeatureToggles() {
   const [toggles, setToggles] = useState<FeatureToggles>({
@@ -8,6 +15,8 @@ export function useFeatureToggles() {
     enableTrading: false,
     enableCustomization: false,
     enableAnalytics: false,
+    redirectPreference: explorer1,
+    tradingPlatformPreference: tradingPlatform1
   });
 
   useEffect(() => {
@@ -18,11 +27,28 @@ export function useFeatureToggles() {
     })();
   }, []);
 
-  const updateToggle = async (key: keyof FeatureToggles, value: boolean) => {
+  const updateToggle = async (key: keyof Omit<FeatureToggles, 'redirectPreference' | 'tradingPlatformPreference'>, value: boolean) => {
     const newToggles = { ...toggles, [key]: value };
     setToggles(newToggles);
     await setStoredFeatureToggles(newToggles);
   };
 
-  return { toggles, updateToggle };
+  const updateRedirectPreference = async (value: RedirectOption) => {
+    const newToggles = { ...toggles, redirectPreference: value };
+    setToggles(newToggles);
+    await setStoredFeatureToggles(newToggles);
+  };
+
+  const updateTradingPlatformPreference = async (value: TradingPlatformOption) => {
+    const newToggles = { ...toggles, tradingPlatformPreference: value };
+    setToggles(newToggles);
+    await setStoredFeatureToggles(newToggles);
+  };
+
+  return { 
+    toggles, 
+    updateToggle, 
+    updateRedirectPreference,
+    updateTradingPlatformPreference
+  };
 }
