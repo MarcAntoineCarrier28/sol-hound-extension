@@ -2,6 +2,7 @@ import "./highlight-styles.css";
 import highlightAddresses from "./highlighting";
 import { getStoredFeatureToggles } from "../utils/feature-storage";
 import { storage } from "@wxt-dev/storage";
+import { getAddressCache } from "../utils/address-verification";
 
 export default defineContentScript({
   matches: ["*://*/*"],
@@ -11,6 +12,9 @@ export default defineContentScript({
       
       // Get feature toggle state from storage
       const featureToggles = await getStoredFeatureToggles();
+      
+      // Pre-load the address cache to optimize initial rendering
+      await getAddressCache();
       
       // Function to apply or remove highlighting
       const updateHighlighting = (enabled: boolean) => {

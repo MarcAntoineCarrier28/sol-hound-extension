@@ -1,45 +1,72 @@
 .pump-highlight {
-    background-image: linear-gradient(to right, #00FF00 15%, #FFFFFF 33%, #FFFFFF 66%, #00FF00 85%);
-    background-size: 300% 100%;
-    background-position: 0 0;
-    cursor: pointer;
-    padding: 2px;
-    border-radius: 4px;
-    font-weight: bold;
-    color: white;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: pump-sweep 0.75s infinite linear;
+  background-image: linear-gradient(
+    to right,
+    #00ff00 15%,
+    #ffffff 33%,
+    #ffffff 66%,
+    #00ff00 85%
+  );
+  background-size: 300% 100%;
+  background-position: 0 0;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  font-weight: bold;
+  color: white;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: pump-sweep 0.75s infinite linear;
+}
+
+@keyframes pump-sweep {
+  0% {
+    background-position: 0% 50%;
   }
-  
-  @keyframes pump-sweep {
-    0% {
-      background-position: 0% 50%;
-    }
-    100% {
-      background-position: 100% 50%;
-    }
+  100% {
+    background-position: 100% 50%;
   }
-  
-  .solana-highlight {
-    background-image: linear-gradient(to right, #9945FF 15%, #14F195 33%, #00FFC2 66%, #9945FF 85%);
-    background-size: 300% 100%;
-    background-position: 0 0;
-    cursor: pointer;
-    padding: 2px;
-    border-radius: 4px;
-    font-weight: bold;
-    color: white;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: solana-sweep 0.75s infinite linear;
+}
+
+.solana-highlight {
+  background-image: linear-gradient(
+    to right,
+    #9945ff 15%,
+    #14f195 33%,
+    #00ffc2 66%,
+    #9945ff 85%
+  );
+  background-size: 300% 100%;
+  background-position: 0 0;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  font-weight: bold;
+  color: white;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: solana-sweep 0.75s infinite linear;
+}
+
+@keyframes solana-sweep {
+  0% {
+    background-position: 0% 50%;
   }
-  
-  @keyframes solana-sweep {
-    0% {
-      background-position: 0% 50%;
-    }
-    100% {
-      background-position: 100% 50%;
-    }
+  100% {
+    background-position: 100% 50%;
   }
+}
+
+.verifying .spinner {
+  display: inline-block;
+  margin-left: 4px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
