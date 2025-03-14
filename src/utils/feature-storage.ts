@@ -15,7 +15,7 @@ export interface FeatureToggles {
 }
 
 const DEFAULT_TOGGLES: FeatureToggles = {
-  highlightCAs: false,
+  highlightCAs: true,
   enableTrading: false,
   enableCustomization: false,
   enableAnalytics: false,
