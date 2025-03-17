@@ -104,8 +104,8 @@ export const TRADING_PLATFORMS: Record<string, TradingPlatformConfig> = {
     getUrl: (address) => `https://neo.bullx.io/terminal?chainId=1399811149&address=${address}`
   },
   [tradingPlatform4]: {
-    name: 'Jupiter',
-    getUrl: (address) => `https://jup.ag/tokens/${address}`
+    name: 'Axiom',
+    getUrl: (address) => `https://axiom.trade/t/${address}`
   }
 };
 

@@ -214,6 +214,17 @@ input:checked + .slider:before {
   color: white;
 }
 
+.pro-indicator {
+  background-color:rgb(250, 212, 0);
+  color: black;
+  margin-left: 8px;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-weight: bold;
+  font-style: italic;
+  font-size: 12px;
+}
+
 .premium-feature-indicator {
   background-color:rgb(250, 212, 0);
   color: black;

@@ -21,7 +21,7 @@ const Header: React.FC<HeaderProps> = ({
       <div className="logo-container" onClick={handleLogoClick}>
         <img src="/icon/48.png" alt="Solhound Logo" className="logo" />
         <span className="title">Solhound </span>
-        {isPro && <span className="pro-badge">PRO</span>}
+        {isPro && <span className="pro-indicator">PRO</span>}
       </div>
       <button className="support-btn" id="supportButton" onClick={handleSupportClick}>
         <img src="/icon/support.png" alt="Support" />
