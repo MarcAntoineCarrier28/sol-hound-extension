@@ -22,12 +22,14 @@ const App: React.FC = () => {
   const { authStatus } = useAuthStatus();
   const hasPremium = !!authStatus.subscription;
 
+  const isTokenRedirectDisabled = toggles.highlightCAs ? (hasPremium && toggles.enableTrading) : true;
+
   return (
     <>
       <Header 
       isPro = {hasPremium} />
 
-      <div className="section">
+<div className="section">
         <FeatureToggle
           label="Highlight CA's"
           checked={toggles.highlightCAs}
@@ -37,14 +39,12 @@ const App: React.FC = () => {
         {/* Only show redirect selectors if highlighting is enabled */}
         {toggles.highlightCAs && (
           <div className="redirect-settings">
-            {/* Show token redirect selector if user doesn't have premium OR trading is disabled */}
-            {(!hasPremium || !toggles.enableTrading) && (
-              <TokenRedirectSelector
-                value={toggles.tokenRedirectPreference}
-                onChange={(value) => updateTokenRedirectPreference(value)}
-                disabled={!toggles.highlightCAs}
-              />
-            )}
+            {/* Always show token redirect selector, but disable it when appropriate */}
+            <TokenRedirectSelector
+              value={toggles.tokenRedirectPreference}
+              onChange={(value) => updateTokenRedirectPreference(value)}
+              disabled={isTokenRedirectDisabled}
+            />
             
             {/* Always show wallet redirect selector since trading only affects tokens */}
             <WalletRedirectSelector

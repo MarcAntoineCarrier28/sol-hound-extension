@@ -286,3 +286,39 @@ input:checked + .slider:before {
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+.feature.disabled-feature {
+  opacity: 0.65;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.disabled-text {
+  color: #6c757d;
+}
+
+.disabled-note {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 11px;
+  font-style: italic;
+  color: #888;
+}
+
+.disabled-select {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Add a subtle strikethrough to show the option is overridden */
+.feature.disabled-feature::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background-color: rgba(108, 117, 125, 0.2);
+  z-index: -1;
+  display: none; /* Optional: remove this line if you want the strikethrough */
+}

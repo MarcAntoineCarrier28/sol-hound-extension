@@ -14,10 +14,12 @@ const TokenRedirectSelector: React.FC<TokenRedirectSelectorProps> = ({
   disabled = false 
 }) => {
   return (
-    <div className="feature">
-      <span>Token Redirect</span>
+    <div className={`feature ${disabled ? 'disabled-feature' : ''}`}>
+      <span className={disabled ? 'disabled-text' : ''}>
+        Token Redirect
+      </span>
       <select
-        className="redirect-selector"
+        className={`redirect-selector ${disabled ? 'disabled-select' : ''}`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}

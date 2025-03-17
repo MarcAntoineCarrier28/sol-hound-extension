@@ -15,7 +15,7 @@ const WalletRedirectSelector: React.FC<WalletRedirectSelectorProps> = ({
 }) => {
   return (
     <div className="feature">
-      <span>Wallet Redirect</span>
+      <span>Wallet Click Action</span>
       <select
         className="redirect-selector"
         value={value}
