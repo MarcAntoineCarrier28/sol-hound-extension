@@ -1,9 +1,7 @@
 // src/utils/address-verification.ts
 import { storage } from "@wxt-dev/storage";
 import { getUrlForAddress, getTradingPlatformUrl } from "@/data/const";
-
-// Constants - Replace with your actual QuickNode endpoint
-const SOLANA_RPC_ENDPOINT = "https://multi-bitter-resonance.solana-mainnet.quiknode.pro/a55dd3abd5860ead89ad91cc4060ea6b96852116/";
+import { baseURL } from "@/data/const";
 
 // Address type definition
 export type AddressType = "token" | "wallet" | "unknown";
@@ -45,7 +43,7 @@ function isCacheValid(cacheEntry: { timestamp: number }): boolean {
   return (Date.now() - cacheEntry.timestamp) < CACHE_EXPIRATION;
 }
 
-// Verify if an address is a token or wallet using Solana JSON RPC
+// Verify if an address is a token or wallet using our Next.js API
 export async function verifyAddressType(address: string): Promise<AddressType> {
   // Check cache first
   const cache = await getAddressCache();
@@ -54,59 +52,33 @@ export async function verifyAddressType(address: string): Promise<AddressType> {
   }
 
   try {
-    // Check if the address is a Token Mint account by checking its owner
-    const tokenInfoResponse = await fetch(SOLANA_RPC_ENDPOINT, {
+    // Call our Next.js API endpoint
+    const response = await fetch(`${baseURL}/api/verify-address`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'getAccountInfo',
-        params: [
-          address,
-          { encoding: 'jsonParsed' }
-        ]
-      })
+      body: JSON.stringify({ address })
     });
 
-    const tokenInfoData = await tokenInfoResponse.json();
-    
-    // Check for token program ownership (Token Program ID)
-    if (tokenInfoData.result && tokenInfoData.result.value) {
-      const owner = tokenInfoData.result.value.owner;
+    if (response.ok) {
+      const data = await response.json();
       
-      // Token Program ID or SPL Token 2022 Program ID
-      if (owner === 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' || 
-          owner === 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb') {
-        const type: AddressType = "token";
-        await updateAddressCache(address, type);
-        return type;
+      if (data.type) {
+        // Update cache with the result from our API
+        await updateAddressCache(address, data.type);
+        return data.type as AddressType;
       }
-      
-      // It has an owner but is not a token, so it's a wallet
-      const type: AddressType = "wallet";
-      await updateAddressCache(address, type);
-      return type;
-    }
-    
-    // If we reach here and have a result but the account doesn't exist
-    // it might be an unused wallet address
-    if (tokenInfoData.result && tokenInfoData.result.value === null) {
-      const type: AddressType = "wallet";
-      await updateAddressCache(address, type);
-      return type;
     }
   } catch (error) {
-    console.error(`Error checking account:`, error);
+    console.error("Error verifying address:", error);
   }
 
-  // If all checks fail or we couldn't determine, return unknown
+  // If API call fails or returns an unknown type, default to "unknown"
   const type: AddressType = "unknown";
   await updateAddressCache(address, type);
   return type;
 }
 
-// Get proper redirect URL based on address type using our central utility functions
+// Get proper redirect URL based on address type
 export function getRedirectUrl(
   address: string, 
   addressType: AddressType,
