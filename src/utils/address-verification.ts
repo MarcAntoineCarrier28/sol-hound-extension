@@ -1,5 +1,6 @@
 // src/utils/address-verification.ts
 import { storage } from "@wxt-dev/storage";
+import { getUrlForAddress, getTradingPlatformUrl } from "@/data/const";
 
 // Constants - Replace with your actual QuickNode endpoint
 const SOLANA_RPC_ENDPOINT = "https://multi-bitter-resonance.solana-mainnet.quiknode.pro/a55dd3abd5860ead89ad91cc4060ea6b96852116/";
@@ -105,61 +106,20 @@ export async function verifyAddressType(address: string): Promise<AddressType> {
   return type;
 }
 
-// Get proper redirect URL based on address type
-export function getUrlByAddressType(
+// Get proper redirect URL based on address type using our central utility functions
+export function getRedirectUrl(
   address: string, 
   addressType: AddressType,
-  explorerPreference: string,
-  tradingPlatformPreference: string
+  tokenExplorerPreference: string,
+  walletExplorerPreference: string,
+  tradingPlatformPreference: string,
+  useTradingPlatform: boolean = false
 ): string {
-  // For token addresses
-  if (addressType === "token") {
-    console.log("Token address:", address);
-    switch (explorerPreference) {
-      case "Solscan":
-        return `https://solscan.io/token/${address}`;
-      case "Dexscreener":
-        return `https://dexscreener.com/solana/${address}`;
-      case "Solana FM":
-        return `https://solana.fm/address/${address}?cluster=mainnet-qn1`;
-      case "Birdeye":
-        return `https://birdeye.so/token/${address}?chain=solana`;
-      default:
-        return `https://solscan.io/token/${address}`;
-    }
-  } 
-  
-  // For wallet addresses
-  else if (addressType === "wallet") {
-    console.log("Wallet address:", address);
-    switch (explorerPreference) {
-      case "Solscan":
-        return `https://coinstats.app/address/${address}`;
-      case "Dexscreener":
-        // Dexscreener doesn't support direct wallet viewing, fallback to Solscan
-        return `https://solscan.io/account/${address}`;
-      case "Solana FM":
-        return `https://solana.fm/address/${address}?cluster=mainnet-qn1`;
-      case "Birdeye":
-        return `https://birdeye.so/profile/${address}?chain=solana`;
-      default:
-        return `https://coinstats.app/address/${address}`;
-    }
+  // For token addresses with trading enabled
+  if (addressType === "token" && useTradingPlatform) {
+    return getTradingPlatformUrl(address, tradingPlatformPreference);
   }
   
-  // For unknown types, default to explorer view
-  else {
-    switch (explorerPreference) {
-      case "Solscan":
-        return `https://solscan.io/address/${address}`;
-      case "Dexscreener":
-        return `https://dexscreener.com/solana/${address}`;
-      case "Solana FM":
-        return `https://solana.fm/address/${address}?cluster=mainnet-qn1`;
-      case "Birdeye":
-        return `https://birdeye.so/address/${address}?chain=solana`;
-      default:
-        return `https://solscan.io/address/${address}`;
-    }
-  }
+  // For all other cases, use the appropriate explorer
+  return getUrlForAddress(address, addressType, tokenExplorerPreference, walletExplorerPreference);
 }

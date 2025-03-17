@@ -1,7 +1,7 @@
-import { getStoredFeatureToggles, RedirectOption, TradingPlatformOption } from "@/utils/feature-storage";
+// src/highlighting.ts
+import { getStoredFeatureToggles } from "@/utils/feature-storage";
 import { getStoredAuthStatus } from "@/utils/auth-storage";
-import { explorer1, explorer2, explorer3, explorer4, tradingPlatform1, tradingPlatform2, tradingPlatform3, tradingPlatform4 } from "@/data/const";
-import { verifyAddressType, getUrlByAddressType, AddressType, getAddressCache } from "@/utils/address-verification";
+import { verifyAddressType, getRedirectUrl, AddressType, getAddressCache } from "@/utils/address-verification";
 
 const contractAddressRegex = /\b[1-9A-HJ-NP-Za-km-z]{32,44}(pump)?\b/g;
 
@@ -96,21 +96,20 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
               // Verify address type
               const addressType = await verifyAddressType(address);
               
-              // Determine where to redirect based on address type, premium status, and toggles
-              let url;
+              // Determine whether to use trading platform (only for premium users with trading enabled and token addresses)
+              const useTradingPlatform = hasPremium && 
+                                        featureToggles.enableTrading && 
+                                        addressType === "token";
               
-              if (hasPremium && featureToggles.enableTrading && addressType === "token") {
-                // Use trading platform for premium users with trading enabled (only for token addresses)
-                url = getTradingPlatformUrl(address, featureToggles.tradingPlatformPreference);
-              } else {
-                // Use the appropriate URL based on address type
-                url = getUrlByAddressType(
-                  address, 
-                  addressType, 
-                  featureToggles.redirectPreference,
-                  featureToggles.tradingPlatformPreference
-                );
-              }
+              // Get the appropriate redirect URL
+              const url = getRedirectUrl(
+                address,
+                addressType,
+                featureToggles.tokenRedirectPreference,
+                featureToggles.walletRedirectPreference,
+                featureToggles.tradingPlatformPreference,
+                useTradingPlatform
+              );
               
               // Reset loading state
               resetLoadingState();
@@ -124,10 +123,13 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
               resetLoadingState();
               
               // Fallback to default behavior if verification fails
-              const url = address.includes("pump") 
-                ? `https://pump.fun/coin/${address}`
-                : `https://solscan.io/address/${address}`;
-              window.open(url, "_blank");
+              let fallbackUrl = "";
+              if (address.includes("pump")) {
+                fallbackUrl = `https://pump.fun/coin/${address}`;
+              } else {
+                fallbackUrl = `https://solscan.io/address/${address}`;
+              }
+              window.open(fallbackUrl, "_blank");
             }
           });
           
@@ -162,36 +164,5 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
       parent.replaceChild(fragment, node);
     });
   }
-
-// Helper functions for getting URLs based on preferences
-const getRedirectUrl = (address: string, preference: RedirectOption): string => {
-  switch (preference) {
-    case explorer1:
-      return `https://solscan.io/token/${address}`;
-    case explorer2:
-      return `https://dexscreener.com/solana/${address}`;
-    case explorer3:
-      return `https://solana.fm/address/${address}`;
-    case explorer4:
-      return `https://birdeye.so/token/${address}`;
-    default:
-      return `https://solscan.io/token/${address}`;
-  }
-};
-
-const getTradingPlatformUrl = (address: string, platform: TradingPlatformOption): string => {
-  switch (platform) {
-    case tradingPlatform1:
-      return `https://raydium.io/swap/?inputCurrency=SOL&outputCurrency=${address}`;
-    case tradingPlatform2:
-      return `https://photon-sol.tinyastro.io/en/lp/${address}`;
-    case tradingPlatform3:
-      return `https://neo.bullx.io/terminal?chainId=1399811149&address=${address}`;
-    case tradingPlatform4:
-      return `https://jup.ag/tokens/${address}`;
-    default:
-      return `https://raydium.io/swap/?inputCurrency=SOL&outputCurrency=${address}`;
-  }
-};
 
 export default highlightAddresses;

@@ -3,20 +3,29 @@ import './App.css';
 import Header from '@/components/header';
 import FeatureToggle from '@/components/feature-toggle';
 import PremiumFeature from '@/components/premium-feature';
-import RedirectSelector from '@/components/redirect-selector';
+import TokenRedirectSelector from '@/components/token-redirect-selector';
+import WalletRedirectSelector from '@/components/wallet-redirect-selector';
 import TradingPlatformSelector from '@/components/trading-platform-selector';
 import LoginStatus from '@/components/login-status';
 import { useFeatureToggles } from '@/hooks/useFeatureToggles';
 import { useAuthStatus } from '@/hooks/useAuthStatus';
 
 const App: React.FC = () => {
-  const { toggles, updateToggle, updateRedirectPreference, updateTradingPlatformPreference } = useFeatureToggles();
+  const { 
+    toggles, 
+    updateToggle, 
+    updateTokenRedirectPreference, 
+    updateWalletRedirectPreference, 
+    updateTradingPlatformPreference 
+  } = useFeatureToggles();
+  
   const { authStatus } = useAuthStatus();
   const hasPremium = !!authStatus.subscription;
 
   return (
     <>
-      <Header />
+      <Header 
+      isPro = {hasPremium} />
 
       <div className="section">
         <FeatureToggle
@@ -25,14 +34,25 @@ const App: React.FC = () => {
           onChange={(value) => updateToggle("highlightCAs", value)}
         />
         
-        {/* Only show and enable the redirect selector if highlighting is enabled 
-            AND one-click trading is disabled */}
-        {(!hasPremium || !toggles.enableTrading) && (
-          <RedirectSelector 
-            value={toggles.redirectPreference}
-            onChange={(value) => updateRedirectPreference(value)}
-            disabled={!toggles.highlightCAs}
-          />
+        {/* Only show redirect selectors if highlighting is enabled */}
+        {toggles.highlightCAs && (
+          <div className="redirect-settings">
+            {/* Show token redirect selector if user doesn't have premium OR trading is disabled */}
+            {(!hasPremium || !toggles.enableTrading) && (
+              <TokenRedirectSelector
+                value={toggles.tokenRedirectPreference}
+                onChange={(value) => updateTokenRedirectPreference(value)}
+                disabled={!toggles.highlightCAs}
+              />
+            )}
+            
+            {/* Always show wallet redirect selector since trading only affects tokens */}
+            <WalletRedirectSelector
+              value={toggles.walletRedirectPreference}
+              onChange={(value) => updateWalletRedirectPreference(value)}
+              disabled={!toggles.highlightCAs}
+            />
+          </div>
         )}
       </div>
 
@@ -60,14 +80,14 @@ const App: React.FC = () => {
         )}
         
         {/* Other premium features - also disabled if Highlight CA's is off */}
-        <PremiumFeature 
+{/*         <PremiumFeature 
           label="Customization" 
           locked={!toggles.highlightCAs}
         />
         <PremiumFeature 
           label="Analytics" 
           locked={!toggles.highlightCAs}
-        />
+        /> */}
       </div>
 
       <div className="auth-status">
