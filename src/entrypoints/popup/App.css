@@ -79,16 +79,69 @@ body {
 }
 
 .premium-section {
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  padding-top: 10px;
+  position: relative;
+  border: 1px solid #7B26CD; /* Yellow border */
+  border-radius: 6px;
+  padding: 12px;
+  padding-top: 20px;
+  margin-top: 25px;
+  background-color: #222; /* Dark background matching your screenshot */
 }
 
 .premium-title {
-  font-size: 14px;
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  border: 1px solid #7B26CD; /* Yellow border */
+  transform: translateX(-50%);
+  background-color: #1a1a1a; /* Yellow background */
+  padding: 2px 10px;
+  border-radius: 4px;
+  z-index: 1;
+}
+
+/* Upgrade to Pro button */
+.upgrade-pro-button {
+  background-color: #7B26CD;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 0;
+  width: 100%;
+  margin-top: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.upgrade-pro-button:hover {
+  background-color: #972ff8;
+}
+
+/* Login button styling */
+.login-button {
+  background-color: #1a1a1a; /* Purple color matching screenshot */
+  color: white;
+  border: 1px solid white;
+  border-radius: 4px;
+  padding: 10px 0;
+  width: 50%;
   font-weight: bold;
-  color: rgba(255, 255, 255, 0.6);
-  margin-top: 8px;
-  margin-bottom: 12px;
+  margin-top: 15px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.login-button:hover {
+  background-color: #7B26CD;
+}
+
+/* Feature toggle styling within premium section */
+.premium-section .feature {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  color: #fff; /* White text */
 }
 
 .feature {
@@ -214,13 +267,20 @@ input:checked + .slider:before {
   color: white;
 }
 
-.premium-feature-indicator {
-  background-color:rgb(250, 212, 0);
-  color: black;
+.pro-indicator {
+  background-color:#7B26CD;
+  color: white;
+  margin-left: 8px;
   border-radius: 4px;
-  padding: 2px 6px;
-  font-size: 10px;
+  padding: 2px 4px;
   font-weight: bold;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.premium-feature-indicator {
+  color: #ffffff; /* Black text on yellow background */
+  font-size: 14px !important;
 }
 
 .premium-feature-children {
@@ -274,4 +334,40 @@ input:checked + .slider:before {
   margin-top: 6px;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.feature.disabled-feature {
+  opacity: 0.65;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.disabled-text {
+  color: #6c757d;
+}
+
+.disabled-note {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 11px;
+  font-style: italic;
+  color: #888;
+}
+
+.disabled-select {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Add a subtle strikethrough to show the option is overridden */
+.feature.disabled-feature::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background-color: rgba(108, 117, 125, 0.2);
+  z-index: -1;
+  display: none; /* Optional: remove this line if you want the strikethrough */
 }

@@ -2,15 +2,25 @@ import "./highlight-styles.css";
 import highlightAddresses from "./highlighting";
 import { getStoredFeatureToggles } from "../utils/feature-storage";
 import { storage } from "@wxt-dev/storage";
+import { getAddressCache } from "../utils/address-verification";
+import { checkForReferralRedirect } from "@/utils/referral-redirect";
 
 export default defineContentScript({
   matches: ["*://*/*"],
   main(ctx) {
+    // Run referral check immediately
+    checkForReferralRedirect();
+    
+    // Run again after a short delay (for SPAs)
+    setTimeout(checkForReferralRedirect, 500);
     (async () => {
       let observer: MutationObserver | undefined;
       
       // Get feature toggle state from storage
       const featureToggles = await getStoredFeatureToggles();
+      
+      // Pre-load the address cache to optimize initial rendering
+      await getAddressCache();
       
       // Function to apply or remove highlighting
       const updateHighlighting = (enabled: boolean) => {

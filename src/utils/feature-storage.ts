@@ -1,33 +1,75 @@
 // src/utils/feature-storage.ts
 import { storage } from "@wxt-dev/storage";
-import { explorer1, explorer2, explorer3, explorer4, tradingPlatform1, tradingPlatform2, tradingPlatform3, tradingPlatform4 } from "@/data/const";
-
-export type RedirectOption = typeof explorer1 | typeof explorer2 | typeof explorer3 | typeof explorer4;
-export type TradingPlatformOption = typeof tradingPlatform1 | typeof tradingPlatform2 | typeof tradingPlatform3 | typeof tradingPlatform4;
+import { 
+  tokenExplorer1, 
+  walletExplorer1, 
+  tradingPlatform1
+} from "@/data/const";
 
 export interface FeatureToggles {
   highlightCAs: boolean;
   enableTrading: boolean;
   enableCustomization: boolean;
   enableAnalytics: boolean;
-  redirectPreference: RedirectOption;
-  tradingPlatformPreference: TradingPlatformOption;
+  // Separate redirect preferences for tokens and wallets
+  tokenRedirectPreference: string;
+  walletRedirectPreference: string;
+  tradingPlatformPreference: string;
 }
 
 const DEFAULT_TOGGLES: FeatureToggles = {
-  highlightCAs: false,
+  highlightCAs: true,
   enableTrading: false,
   enableCustomization: false,
   enableAnalytics: false,
-  redirectPreference: explorer1, // Default redirect to Solscan
+  tokenRedirectPreference: tokenExplorer1, // Default redirect for tokens
+  walletRedirectPreference: walletExplorer1, // Default redirect for wallets
   tradingPlatformPreference: tradingPlatform1 // Default trading platform
 };
 
 export async function getStoredFeatureToggles(): Promise<FeatureToggles> {
   const result = await storage.getItem("local:featureToggles") as FeatureToggles;
-  return result || DEFAULT_TOGGLES;
+  
+  // Handle migration from old format with single redirectPreference
+  if (result && 'redirectPreference' in result) {
+    const oldResult = result as any;
+    // Use the old redirectPreference for both new preferences if they don't exist
+    if (!oldResult.tokenRedirectPreference) {
+      oldResult.tokenRedirectPreference = oldResult.redirectPreference;
+    }
+    if (!oldResult.walletRedirectPreference) {
+      oldResult.walletRedirectPreference = oldResult.redirectPreference;
+    }
+    // Remove the old property
+    delete oldResult.redirectPreference;
+  }
+  
+  return { ...DEFAULT_TOGGLES, ...result };
 }
 
 export async function setStoredFeatureToggles(toggles: FeatureToggles): Promise<void> {
   await storage.setItem("local:featureToggles", toggles);
+}
+
+/**
+ * Resets premium features to their default state
+ * Call this when a user logs out or loses premium status
+ */
+export async function resetPremiumFeatures(): Promise<FeatureToggles> {
+  const currentToggles = await getStoredFeatureToggles();
+  
+  // Create updated toggles with premium features reset
+  const updatedToggles: FeatureToggles = {
+    ...currentToggles,
+    // Reset premium features to default values
+    enableTrading: DEFAULT_TOGGLES.enableTrading,
+    enableCustomization: DEFAULT_TOGGLES.enableCustomization,
+    enableAnalytics: DEFAULT_TOGGLES.enableAnalytics,
+    // Keep other settings like user preferences for explorers
+  };
+  
+  // Store the updated toggles
+  await setStoredFeatureToggles(updatedToggles);
+  
+  return updatedToggles;
 }

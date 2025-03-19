@@ -1,21 +1,25 @@
 // src/hooks/useFeatureToggles.ts
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { 
   getStoredFeatureToggles, 
-  setStoredFeatureToggles, 
-  FeatureToggles,
-  RedirectOption,
-  TradingPlatformOption
+  setStoredFeatureToggles,
+  resetPremiumFeatures,
+  FeatureToggles
 } from "@/utils/feature-storage";
-import { explorer1, tradingPlatform1 } from "@/data/const";
+import { 
+  tokenExplorer1, 
+  walletExplorer1, 
+  tradingPlatform1
+} from "@/data/const";
 
 export function useFeatureToggles() {
   const [toggles, setToggles] = useState<FeatureToggles>({
-    highlightCAs: false,
+    highlightCAs: true,
     enableTrading: false,
     enableCustomization: false,
     enableAnalytics: false,
-    redirectPreference: explorer1,
+    tokenRedirectPreference: tokenExplorer1,
+    walletRedirectPreference: walletExplorer1,
     tradingPlatformPreference: tradingPlatform1
   });
 
@@ -27,28 +31,48 @@ export function useFeatureToggles() {
     })();
   }, []);
 
-  const updateToggle = async (key: keyof Omit<FeatureToggles, 'redirectPreference' | 'tradingPlatformPreference'>, value: boolean) => {
+  const updateToggle = async (
+    key: keyof Omit<FeatureToggles, 'tokenRedirectPreference' | 'walletRedirectPreference' | 'tradingPlatformPreference'>, 
+    value: boolean
+  ) => {
     const newToggles = { ...toggles, [key]: value };
     setToggles(newToggles);
     await setStoredFeatureToggles(newToggles);
   };
 
-  const updateRedirectPreference = async (value: RedirectOption) => {
-    const newToggles = { ...toggles, redirectPreference: value };
+  const updateTokenRedirectPreference = async (value: string) => {
+    const newToggles = { ...toggles, tokenRedirectPreference: value };
     setToggles(newToggles);
     await setStoredFeatureToggles(newToggles);
   };
 
-  const updateTradingPlatformPreference = async (value: TradingPlatformOption) => {
+  const updateWalletRedirectPreference = async (value: string) => {
+    const newToggles = { ...toggles, walletRedirectPreference: value };
+    setToggles(newToggles);
+    await setStoredFeatureToggles(newToggles);
+  };
+
+  const updateTradingPlatformPreference = async (value: string) => {
     const newToggles = { ...toggles, tradingPlatformPreference: value };
     setToggles(newToggles);
     await setStoredFeatureToggles(newToggles);
   };
 
+  /**
+   * Resets premium features when user logs out or premium status changes
+   */
+  const resetPremiumFeatureToggles = useCallback(async () => {
+    const resetToggles = await resetPremiumFeatures();
+    setToggles(resetToggles);
+    return resetToggles;
+  }, []);
+
   return { 
     toggles, 
     updateToggle, 
-    updateRedirectPreference,
-    updateTradingPlatformPreference
+    updateTokenRedirectPreference,
+    updateWalletRedirectPreference,
+    updateTradingPlatformPreference,
+    resetPremiumFeatureToggles
   };
 }

@@ -13,13 +13,13 @@ const LoginStatus: React.FC = () => {
     window.open(baseURL + '/#pricing', '_blank');
   };
 
+  const handleLogoutClick = () => {
+    window.open(baseURL + '/sign-out', '_blank');
+  };
+
   if (loading) return <p>Loading...</p>;
 
   if (!authStatus.session) {
-    return <button className='btn-primary' onClick={handleLoginClick}>Login</button>;
-  }
-
-  if (!authStatus.subscription) {
     return <button className='btn-primary' onClick={handleLoginClick}>Login</button>;
   }
 
@@ -28,11 +28,10 @@ const LoginStatus: React.FC = () => {
       <p>
         Welcome <strong>{authStatus.session.user.email}</strong>
       </p>
-      {authStatus.subscription ? (
+      {authStatus.subscription &&
         <div>Thank you for being a Pro member</div>
-      ) : (
-        <button className='btn-primary' onClick={handleGetPremiumClick}>Upgrade to PRO now</button>
-      )}
+      }
+      <button className='btn-secondary' style={{ marginTop: '8px' }} onClick={handleLogoutClick}>Logout</button>
     </div>
   );
 };

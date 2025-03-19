@@ -1,6 +1,7 @@
-import { getStoredFeatureToggles, RedirectOption, TradingPlatformOption } from "@/utils/feature-storage";
+// src/highlighting.ts
+import { getStoredFeatureToggles } from "@/utils/feature-storage";
 import { getStoredAuthStatus } from "@/utils/auth-storage";
-import { explorer1, explorer2, explorer3, explorer4, tradingPlatform1, tradingPlatform2, tradingPlatform3, tradingPlatform4 } from "@/data/const";
+import { verifyAddressType, getRedirectUrl, AddressType, getAddressCache } from "@/utils/address-verification";
 
 const contractAddressRegex = /\b[1-9A-HJ-NP-Za-km-z]{32,44}(pump)?\b/g;
 
@@ -10,38 +11,30 @@ interface ReplaceItem {
   parent: Node;
 }
 
-const getRedirectUrl = (address: string, preference: RedirectOption): string => {
+// Function to show loading indicator in span while verifying
+const showLoadingState = (span: HTMLSpanElement) => {
+  span.classList.add("verifying");
+  span.style.cursor = "wait";
   
-  switch (preference) {
-    case explorer1:
-      return `https://solscan.io/token/${address}`;
-    case explorer2:
-      return `https://dexscreener.com/solana/${address}`;
-    case explorer3:
-      return `https://solana.fm/address/${address}`;
-    case explorer4:
-      return `https://birdeye.so/token/${address}`;
-    default:
-      return `https://solscan.io/token/${address}`;
-  }
-};
-
-const getTradingPlatformUrl = (address: string, platform: TradingPlatformOption): string => {
-  if (address.includes("pump")) {
-    return `https://pump.fun/coin/${address}`;
-  }
-  switch (platform) {
-    case tradingPlatform1:
-      return `https://raydium.io/swap/?inputCurrency=SOL&outputCurrency=${address}`;
-    case tradingPlatform2:
-      return `https://photon-sol.tinyastro.io/en/lp/${address}`;
-    case tradingPlatform3:
-      return `https://neo.bullx.io/terminal?chainId=1399811149&address=${address}`;
-    case tradingPlatform4:
-      return `https://jup.ag/tokens/${address}`;
-    default:
-      return `https://raydium.io/swap/?inputCurrency=SOL&outputCurrency=${address}`;
-  }
+  // Store original text
+  const originalText = span.textContent;
+  span.dataset.originalText = originalText || "";
+  
+  // Add a little loading indicator 
+  const spinner = document.createElement("span");
+  spinner.className = "spinner";
+  spinner.textContent = "⟳";
+  span.textContent = "";
+  span.appendChild(document.createTextNode(originalText?.slice(0, 6) + "..." || ""));
+  span.appendChild(spinner);
+  
+  return () => {
+    // Function to restore original state
+    span.classList.remove("verifying");
+    span.style.cursor = "pointer";
+    span.textContent = span.dataset.originalText || "";
+    delete span.dataset.originalText;
+  };
 };
 
 const highlightAddresses = async (node: Node = document.body): Promise<void> => {
@@ -51,6 +44,18 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
     // Check auth status to determine if user has premium features
     const authStatus = await getStoredAuthStatus();
     const hasPremium = !!authStatus.subscription;
+    
+    // If premium features were enabled but user is not premium, they should be disabled
+    // This is a safety check in the content script
+    if (!hasPremium && featureToggles.enableTrading) {
+      // Premium features should already be disabled by the popup
+      // This is just a safety check for the content script
+      console.log('Non-premium user has premium features enabled, ignoring');
+      // We don't modify storage here, as that should be handled by the popup
+    }
+
+    // Load address cache to pre-label known addresses
+    const addressCache = await getAddressCache();
 
     if (!node) return;
     const walker = document.createTreeWalker(
@@ -89,20 +94,60 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
             ? "pump-highlight animated-highlight"
             : "solana-highlight animated-highlight";
           
-          span.addEventListener("click", () => {
-            let url;
+          span.addEventListener("click", async (e) => {
+            // Prevent default navigation if a link is clicked
+            e.preventDefault();
             
-            // Determine where to redirect based on premium status and toggles
-            if (hasPremium && featureToggles.enableTrading) {
-              // Use trading platform for premium users with trading enabled
-              url = getTradingPlatformUrl(address, featureToggles.tradingPlatformPreference);
-            } else {
-              // Otherwise use explorer
-              url = getRedirectUrl(address, featureToggles.redirectPreference);
+            // Show loading indicator
+            const resetLoadingState = showLoadingState(span);
+            
+            try {
+              // Get the latest feature toggles and auth status
+              // This ensures we use the most current settings
+              const latestToggles = await getStoredFeatureToggles();
+              const latestAuthStatus = await getStoredAuthStatus();
+              const userHasPremium = !!latestAuthStatus.subscription;
+              
+              // Verify address type
+              const addressType = await verifyAddressType(address);
+              
+              // Determine whether to use trading platform (only for premium users with trading enabled and token addresses)
+              const useTradingPlatform = userHasPremium && 
+                                        latestToggles.enableTrading && 
+                                        addressType === "token";
+              
+              // Get the appropriate redirect URL
+              const url = getRedirectUrl(
+                address,
+                addressType,
+                latestToggles.tokenRedirectPreference,
+                latestToggles.walletRedirectPreference,
+                latestToggles.tradingPlatformPreference,
+                useTradingPlatform
+              );
+              
+              // Reset loading state
+              resetLoadingState();
+              
+              // Open the URL
+              window.open(url, "_blank");
+            } catch (error) {
+              console.error("Error verifying address:", error);
+              
+              // Reset loading state
+              resetLoadingState();
+              
+              // Fallback to default behavior if verification fails
+              let fallbackUrl = "";
+              if (address.includes("pump")) {
+                fallbackUrl = `https://pump.fun/coin/${address}`;
+              } else {
+                fallbackUrl = `https://solscan.io/address/${address}`;
+              }
+              window.open(fallbackUrl, "_blank");
             }
-            
-            window.open(url, "_blank");
           });
+          
           return span;
         }
 
