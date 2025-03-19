@@ -6,7 +6,6 @@ export const baseURL = "http://localhost:8080";
 // ==========================================
 
 export const tokenExplorer1 = 'Solscan';
-export const tokenExplorer2 = 'Dex Screener';
 export const tokenExplorer3 = 'Solana-Fm';
 export const tokenExplorer4 = 'Birdeye';
 
@@ -20,10 +19,6 @@ export const TOKEN_EXPLORERS: Record<string, ExplorerConfig> = {
     name: 'Solscan',
     getUrl: (address) => `https://solscan.io/token/${address}`
   },
-  [tokenExplorer2]: {
-    name: 'Dex Screener',
-    getUrl: (address) => `https://dexscreener.com/solana/${address}`
-  },
   [tokenExplorer3]: {
     name: 'Solana-Fm',
     getUrl: (address) => `https://solana.fm/address/${address}?cluster=mainnet-qn1`
@@ -36,7 +31,6 @@ export const TOKEN_EXPLORERS: Record<string, ExplorerConfig> = {
 
 export const TOKEN_EXPLORER_OPTIONS = [
   tokenExplorer1,
-  tokenExplorer2,
   tokenExplorer3,
   tokenExplorer4
 ];
@@ -83,7 +77,9 @@ export const WALLET_EXPLORER_OPTIONS = [
 export const tradingPlatform1 = 'Raydium';
 export const tradingPlatform2 = 'Photon';
 export const tradingPlatform3 = 'Bullx';
-export const tradingPlatform4 = 'Jupiter';
+export const tradingPlatform4 = 'Axiom';
+export const tradingPlatform5 = 'Dex Screener';
+
 
 export interface TradingPlatformConfig {
   name: string;
@@ -106,6 +102,10 @@ export const TRADING_PLATFORMS: Record<string, TradingPlatformConfig> = {
   [tradingPlatform4]: {
     name: 'Axiom',
     getUrl: (address) => `https://axiom.trade/t/${address}`
+  },
+  [tradingPlatform5]: {
+    name: 'Dex Screener',
+    getUrl: (address) => `https://dexscreener.com/solana/${address}`
   }
 };
 
@@ -113,7 +113,8 @@ export const TRADING_PLATFORM_OPTIONS = [
   tradingPlatform1,
   tradingPlatform2,
   tradingPlatform3,
-  tradingPlatform4
+  tradingPlatform4,
+  tradingPlatform5,
 ];
 
 // Special case for Pump token addresses

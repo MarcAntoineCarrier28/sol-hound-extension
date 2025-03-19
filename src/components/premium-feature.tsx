@@ -7,7 +7,7 @@ interface PremiumFeatureProps {
   checked?: boolean;
   onChange?: (checked: boolean) => void;
   children?: ReactNode;
-  locked?: boolean; // New prop to allow manual locking
+  locked?: boolean;
 }
 
 const PremiumFeature: React.FC<PremiumFeatureProps> = ({ 
@@ -16,7 +16,7 @@ const PremiumFeature: React.FC<PremiumFeatureProps> = ({
   checked = false, 
   onChange,
   children,
-  locked = false // Default to not locked
+  locked = false
 }) => {
   const { authStatus } = useAuthStatus();
   const isPremium = !!authStatus.subscription;
@@ -37,8 +37,6 @@ const PremiumFeature: React.FC<PremiumFeatureProps> = ({
   return (
     <div className={`feature ${isLocked ? 'locked' : ''}`}>
       <div className="feature-text">
-        {/* Show lock icon for either premium lock or explicit lock */}
-        {isLocked}
         <span>{label}</span>
       </div>
       

@@ -16,20 +16,20 @@ const App: React.FC = () => {
     updateToggle, 
     updateTokenRedirectPreference, 
     updateWalletRedirectPreference, 
-    updateTradingPlatformPreference 
+    updateTradingPlatformPreference
   } = useFeatureToggles();
   
-  const { authStatus } = useAuthStatus();
+  const { authStatus, loading } = useAuthStatus();
   const hasPremium = !!authStatus.subscription;
-
+  
+  // Check if token redirect should be disabled (when trading is enabled for premium users)
   const isTokenRedirectDisabled = toggles.highlightCAs ? (hasPremium && toggles.enableTrading) : true;
 
   return (
     <>
-      <Header 
-      isPro = {hasPremium} />
+      <Header isPro={hasPremium}/>
 
-<div className="section">
+      <div className="section">
         <FeatureToggle
           label="Highlight CA's"
           checked={toggles.highlightCAs}
@@ -56,22 +56,23 @@ const App: React.FC = () => {
         )}
       </div>
 
+      {/* Premium features section with yellow border */}
       <div className="section premium-section">
         <div className="premium-title">
-            <span className="premium-feature-indicator" style={{ fontSize: '14px' }}>PRO Features</span>
-          </div>
+          <span className="premium-feature-indicator">PRO Features</span>
+        </div>
         
-        {/* One-click trading toggle - disabled if Highlight CA's is off */}
+        {/* Use the original PremiumFeature component for one-click trading */}
         <PremiumFeature 
           label="One-click trading" 
           checked={toggles.enableTrading}
           onChange={(value) => toggles.highlightCAs ? updateToggle("enableTrading", value) : null}
           toggleKey="enableTrading"
-          locked={!toggles.highlightCAs}
+          locked={!toggles.highlightCAs || !hasPremium}
         />
         
         {/* Trading platform selector - conditionally rendered and styled as a submenu */}
-        {hasPremium && (
+        {hasPremium && toggles.enableTrading && toggles.highlightCAs && (
           <TradingPlatformSelector
             value={toggles.tradingPlatformPreference}
             onChange={(value) => updateTradingPlatformPreference(value)}
@@ -79,19 +80,31 @@ const App: React.FC = () => {
           />
         )}
         
-        {/* Other premium features - also disabled if Highlight CA's is off */}
-{/*         <PremiumFeature 
-          label="Customization" 
-          locked={!toggles.highlightCAs}
-        />
-        <PremiumFeature 
-          label="Analytics" 
-          locked={!toggles.highlightCAs}
-        /> */}
+        {/* Show upgrade button for non-premium users */}
+        {!hasPremium && (
+          <button 
+            className="upgrade-pro-button"
+            onClick={() => window.open('http://localhost:8080/#pricing', '_blank')}
+          >
+            Upgrade to get access
+          </button>
+        )}
       </div>
 
+      {/* Auth status/login section */}
       <div className="auth-status">
-        <LoginStatus />
+        {loading ? (
+          <div>Loading...</div>
+        ) : !authStatus.session ? (
+          <button 
+            className="login-button"
+            onClick={() => window.open('http://localhost:8080/sign-in', '_blank')}
+          >
+            Login
+          </button>
+        ) : (
+          <LoginStatus />
+        )}
       </div>
     </>
   );

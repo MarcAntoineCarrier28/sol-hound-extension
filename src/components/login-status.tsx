@@ -14,7 +14,7 @@ const LoginStatus: React.FC = () => {
   };
 
   const handleLogoutClick = () => {
-    window.open(baseURL + '/protected', '_blank');
+    window.open(baseURL + '/sign-out', '_blank');
   };
 
   if (loading) return <p>Loading...</p>;
@@ -28,11 +28,9 @@ const LoginStatus: React.FC = () => {
       <p>
         Welcome <strong>{authStatus.session.user.email}</strong>
       </p>
-      {authStatus.subscription ? (
+      {authStatus.subscription &&
         <div>Thank you for being a Pro member</div>
-      ) : (
-        <button className='btn-primary' onClick={handleGetPremiumClick}>Upgrade to PRO now</button>
-      )}
+      }
       <button className='btn-secondary' style={{ marginTop: '16px' }} onClick={handleLogoutClick}>Logout</button>
     </div>
   );
