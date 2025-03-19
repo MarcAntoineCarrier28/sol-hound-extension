@@ -44,6 +44,15 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
     // Check auth status to determine if user has premium features
     const authStatus = await getStoredAuthStatus();
     const hasPremium = !!authStatus.subscription;
+    
+    // If premium features were enabled but user is not premium, they should be disabled
+    // This is a safety check in the content script
+    if (!hasPremium && featureToggles.enableTrading) {
+      // Premium features should already be disabled by the popup
+      // This is just a safety check for the content script
+      console.log('Non-premium user has premium features enabled, ignoring');
+      // We don't modify storage here, as that should be handled by the popup
+    }
 
     // Load address cache to pre-label known addresses
     const addressCache = await getAddressCache();
@@ -93,21 +102,27 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
             const resetLoadingState = showLoadingState(span);
             
             try {
+              // Get the latest feature toggles and auth status
+              // This ensures we use the most current settings
+              const latestToggles = await getStoredFeatureToggles();
+              const latestAuthStatus = await getStoredAuthStatus();
+              const userHasPremium = !!latestAuthStatus.subscription;
+              
               // Verify address type
               const addressType = await verifyAddressType(address);
               
               // Determine whether to use trading platform (only for premium users with trading enabled and token addresses)
-              const useTradingPlatform = hasPremium && 
-                                        featureToggles.enableTrading && 
+              const useTradingPlatform = userHasPremium && 
+                                        latestToggles.enableTrading && 
                                         addressType === "token";
               
               // Get the appropriate redirect URL
               const url = getRedirectUrl(
                 address,
                 addressType,
-                featureToggles.tokenRedirectPreference,
-                featureToggles.walletRedirectPreference,
-                featureToggles.tradingPlatformPreference,
+                latestToggles.tokenRedirectPreference,
+                latestToggles.walletRedirectPreference,
+                latestToggles.tradingPlatformPreference,
                 useTradingPlatform
               );
               

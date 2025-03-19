@@ -1,8 +1,9 @@
 // src/hooks/useFeatureToggles.ts
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { 
   getStoredFeatureToggles, 
-  setStoredFeatureToggles, 
+  setStoredFeatureToggles,
+  resetPremiumFeatures,
   FeatureToggles
 } from "@/utils/feature-storage";
 import { 
@@ -57,11 +58,21 @@ export function useFeatureToggles() {
     await setStoredFeatureToggles(newToggles);
   };
 
+  /**
+   * Resets premium features when user logs out or premium status changes
+   */
+  const resetPremiumFeatureToggles = useCallback(async () => {
+    const resetToggles = await resetPremiumFeatures();
+    setToggles(resetToggles);
+    return resetToggles;
+  }, []);
+
   return { 
     toggles, 
     updateToggle, 
     updateTokenRedirectPreference,
     updateWalletRedirectPreference,
-    updateTradingPlatformPreference
+    updateTradingPlatformPreference,
+    resetPremiumFeatureToggles
   };
 }

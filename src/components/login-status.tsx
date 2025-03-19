@@ -31,7 +31,7 @@ const LoginStatus: React.FC = () => {
       {authStatus.subscription &&
         <div>Thank you for being a Pro member</div>
       }
-      <button className='btn-secondary' style={{ marginTop: '16px' }} onClick={handleLogoutClick}>Logout</button>
+      <button className='btn-secondary' style={{ marginTop: '8px' }} onClick={handleLogoutClick}>Logout</button>
     </div>
   );
 };

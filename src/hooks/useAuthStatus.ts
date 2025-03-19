@@ -1,5 +1,5 @@
 // src/hooks/useAuthStatus.ts
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getStoredAuthStatus, setStoredAuthStatus, AuthStatus } from '../utils/auth-storage';
 import { baseURL } from '@/data/const';
 
@@ -70,6 +70,35 @@ const fetchAuthStatus = async (): Promise<AuthStatus> => {
 export function useAuthStatus(pollInterval = 300000) {
   const [authStatus, setAuthStatusState] = useState<AuthStatus>({ session: null, subscription: null });
   const [loading, setLoading] = useState(true);
+  const previousStatusRef = useRef<AuthStatus | null>(null);
+
+  // Function to check if premium status has changed
+  const hasPremiumChanged = useCallback((oldStatus: AuthStatus | null, newStatus: AuthStatus): boolean => {
+    // Check if premium status changed from true to false
+    const hadPremium = oldStatus?.subscription !== null;
+    const hasPremium = newStatus.subscription !== null;
+    
+    return hadPremium !== hasPremium;
+  }, []);
+
+  // Function to refresh the auth status
+  const refreshAuthStatus = useCallback(async () => {
+    try {
+      const freshStatus = await fetchAuthStatus();
+      
+      // Store the previous status before updating
+      previousStatusRef.current = authStatus;
+      
+      // Update the state with the fresh status
+      setAuthStatusState(freshStatus);
+      
+      // Return whether premium status changed
+      return hasPremiumChanged(previousStatusRef.current, freshStatus);
+    } catch (error) {
+      console.error('Error refreshing auth status:', error);
+      return false;
+    }
+  }, [authStatus, hasPremiumChanged]);
 
   useEffect(() => {
     // On mount, load the cached status and immediately try to refresh it
@@ -80,9 +109,11 @@ export function useAuthStatus(pollInterval = 300000) {
         setAuthStatusState(storedStatus);
         setLoading(false);
         
+        // Store initial status for future comparison
+        previousStatusRef.current = storedStatus;
+        
         // Then refresh from the server
-        const freshStatus = await fetchAuthStatus();
-        setAuthStatusState(freshStatus);
+        await refreshAuthStatus();
       } catch (error) {
         console.error('Error in auth status initialization:', error);
         setLoading(false);
@@ -90,17 +121,15 @@ export function useAuthStatus(pollInterval = 300000) {
     })();
 
     // Set up periodic polling at a reduced frequency
-    const intervalId = setInterval(async () => {
-      try {
-        const freshStatus = await fetchAuthStatus();
-        setAuthStatusState(freshStatus);
-      } catch (error) {
-        console.error('Error in auth status polling:', error);
-      }
-    }, pollInterval);
+    const intervalId = setInterval(refreshAuthStatus, pollInterval);
     
     return () => clearInterval(intervalId);
-  }, [pollInterval]);
+  }, [pollInterval, refreshAuthStatus]);
 
-  return { authStatus, loading };
+  return { 
+    authStatus, 
+    loading, 
+    refreshAuthStatus,
+    hasPremiumStatusChanged: () => hasPremiumChanged(previousStatusRef.current, authStatus)
+  };
 }

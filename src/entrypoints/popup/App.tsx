@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import './App.css';
 import Header from '@/components/header';
 import FeatureToggle from '@/components/feature-toggle';
@@ -9,6 +9,8 @@ import TradingPlatformSelector from '@/components/trading-platform-selector';
 import LoginStatus from '@/components/login-status';
 import { useFeatureToggles } from '@/hooks/useFeatureToggles';
 import { useAuthStatus } from '@/hooks/useAuthStatus';
+import { getStoredAuthStatus } from '@/utils/auth-storage';
+import { storage } from '@wxt-dev/storage';
 
 const App: React.FC = () => {
   const { 
@@ -16,14 +18,55 @@ const App: React.FC = () => {
     updateToggle, 
     updateTokenRedirectPreference, 
     updateWalletRedirectPreference, 
-    updateTradingPlatformPreference
+    updateTradingPlatformPreference,
+    resetPremiumFeatureToggles
   } = useFeatureToggles();
   
   const { authStatus, loading } = useAuthStatus();
   const hasPremium = !!authStatus.subscription;
+  const previousPremiumStatus = useRef<boolean>(hasPremium);
   
   // Check if token redirect should be disabled (when trading is enabled for premium users)
   const isTokenRedirectDisabled = toggles.highlightCAs ? (hasPremium && toggles.enableTrading) : true;
+
+  // Watch for auth status changes
+  useEffect(() => {
+    const watchAuthStatus = async () => {
+      try {
+        storage.watch("local:authStatus", async (newValue) => {
+          if (newValue && typeof newValue === 'object') {
+            const newAuthStatus = newValue as any;
+            const newHasPremium = !!newAuthStatus.subscription;
+            
+            // Check if premium status changed from true to false
+            if (previousPremiumStatus.current && !newHasPremium) {
+              console.log('Premium status changed to non-premium, resetting premium features');
+              await resetPremiumFeatureToggles();
+            }
+            
+            // Update the premium status ref
+            previousPremiumStatus.current = newHasPremium;
+          }
+        });
+      } catch (error) {
+        console.error('Error setting up auth status watcher:', error);
+      }
+    };
+    
+    watchAuthStatus();
+  }, [resetPremiumFeatureToggles]);
+  
+  // Check premium status changes directly
+  useEffect(() => {
+    // If user has lost premium status, reset premium features
+    if (previousPremiumStatus.current && !hasPremium) {
+      console.log('Premium status lost, resetting premium features');
+      resetPremiumFeatureToggles();
+    }
+    
+    // Update ref with current status
+    previousPremiumStatus.current = hasPremium;
+  }, [hasPremium, resetPremiumFeatureToggles]);
 
   return (
     <>
@@ -56,7 +99,7 @@ const App: React.FC = () => {
         )}
       </div>
 
-      {/* Premium features section with yellow border */}
+      {/* Premium features section with purple border */}
       <div className="section premium-section">
         <div className="premium-title">
           <span className="premium-feature-indicator">PRO Features</span>

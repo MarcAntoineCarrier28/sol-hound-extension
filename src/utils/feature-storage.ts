@@ -50,3 +50,26 @@ export async function getStoredFeatureToggles(): Promise<FeatureToggles> {
 export async function setStoredFeatureToggles(toggles: FeatureToggles): Promise<void> {
   await storage.setItem("local:featureToggles", toggles);
 }
+
+/**
+ * Resets premium features to their default state
+ * Call this when a user logs out or loses premium status
+ */
+export async function resetPremiumFeatures(): Promise<FeatureToggles> {
+  const currentToggles = await getStoredFeatureToggles();
+  
+  // Create updated toggles with premium features reset
+  const updatedToggles: FeatureToggles = {
+    ...currentToggles,
+    // Reset premium features to default values
+    enableTrading: DEFAULT_TOGGLES.enableTrading,
+    enableCustomization: DEFAULT_TOGGLES.enableCustomization,
+    enableAnalytics: DEFAULT_TOGGLES.enableAnalytics,
+    // Keep other settings like user preferences for explorers
+  };
+  
+  // Store the updated toggles
+  await setStoredFeatureToggles(updatedToggles);
+  
+  return updatedToggles;
+}
