@@ -1,7 +1,7 @@
 // src/utils/address-verification.ts
 import { storage } from "@wxt-dev/storage";
 import { getUrlForAddress, getTradingPlatformUrl } from "@/data/const";
-import { baseURL } from "@/data/const";
+import { config, log, logError } from "@/utils/environment";
 
 // Address type definition
 export type AddressType = "token" | "wallet" | "unknown";
@@ -19,23 +19,36 @@ const CACHE_EXPIRATION = 24 * 60 * 60 * 1000;
 
 // Get the address cache from storage
 export async function getAddressCache(): Promise<AddressCache> {
-  const cache = await storage.getItem("local:addressTypeCache") as AddressCache;
-  return cache || {};
+  try {
+    const cache = await storage.getItem("local:addressTypeCache") as AddressCache;
+    return cache || {};
+  } catch (error) {
+    logError("Error fetching address cache:", error);
+    return {};
+  }
 }
 
 // Set the address cache in storage
 async function setAddressCache(cache: AddressCache): Promise<void> {
-  await storage.setItem("local:addressTypeCache", cache);
+  try {
+    await storage.setItem("local:addressTypeCache", cache);
+  } catch (error) {
+    logError("Error setting address cache:", error);
+  }
 }
 
 // Update the cache with a new address type
 async function updateAddressCache(address: string, type: AddressType): Promise<void> {
-  const cache = await getAddressCache();
-  cache[address] = {
-    type,
-    timestamp: Date.now()
-  };
-  await setAddressCache(cache);
+  try {
+    const cache = await getAddressCache();
+    cache[address] = {
+      type,
+      timestamp: Date.now()
+    };
+    await setAddressCache(cache);
+  } catch (error) {
+    logError("Error updating address cache:", error);
+  }
 }
 
 // Check if a cache entry is still valid
@@ -43,17 +56,26 @@ function isCacheValid(cacheEntry: { timestamp: number }): boolean {
   return (Date.now() - cacheEntry.timestamp) < CACHE_EXPIRATION;
 }
 
-// Verify if an address is a token or wallet using our Next.js API
+// Verify if an address is a token or wallet using our API endpoint
 export async function verifyAddressType(address: string): Promise<AddressType> {
   // Check cache first
-  const cache = await getAddressCache();
-  if (cache[address] && isCacheValid(cache[address])) {
-    return cache[address].type;
+  try {
+    const cache = await getAddressCache();
+    if (cache[address] && isCacheValid(cache[address])) {
+      log(`Cache hit for address ${address}: ${cache[address].type}`);
+      return cache[address].type;
+    }
+  } catch (error) {
+    logError("Error checking address cache:", error);
   }
 
   try {
-    // Call our Next.js API endpoint
-    const response = await fetch(`${baseURL}/api/verify-address`, {
+    // Get API URL from environment config
+    const apiEndpoint = `${config.apiUrl}/verify-address`;
+    log(`Verifying address ${address} with endpoint ${apiEndpoint}`);
+
+    // Call our API endpoint
+    const response = await fetch(apiEndpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ address })
@@ -63,13 +85,17 @@ export async function verifyAddressType(address: string): Promise<AddressType> {
       const data = await response.json();
       
       if (data.type) {
+        const addressType = data.type as AddressType;
         // Update cache with the result from our API
-        await updateAddressCache(address, data.type);
-        return data.type as AddressType;
+        await updateAddressCache(address, addressType);
+        log(`Address ${address} verified as ${addressType}`);
+        return addressType;
       }
+    } else {
+      logError(`API error verifying address: ${response.status} ${response.statusText}`);
     }
   } catch (error) {
-    console.error("Error verifying address:", error);
+    logError("Error verifying address:", error);
   }
 
   // If API call fails or returns an unknown type, default to "unknown"
@@ -87,11 +113,19 @@ export function getRedirectUrl(
   tradingPlatformPreference: string,
   useTradingPlatform: boolean = false
 ): string {
-  // For token addresses with trading enabled
-  if (addressType === "token" && useTradingPlatform) {
-    return getTradingPlatformUrl(address, tradingPlatformPreference);
+  try {
+    // For token addresses with trading enabled
+    if (addressType === "token" && useTradingPlatform) {
+      log(`Using trading platform redirect for ${address}: ${tradingPlatformPreference}`);
+      return getTradingPlatformUrl(address, tradingPlatformPreference);
+    }
+    
+    // For all other cases, use the appropriate explorer
+    log(`Using explorer redirect for ${address}: ${addressType === "token" ? tokenExplorerPreference : walletExplorerPreference}`);
+    return getUrlForAddress(address, addressType, tokenExplorerPreference, walletExplorerPreference);
+  } catch (error) {
+    logError("Error generating redirect URL:", error);
+    // Fallback to a default explorer if something goes wrong
+    return `https://solscan.io/address/${address}`;
   }
-  
-  // For all other cases, use the appropriate explorer
-  return getUrlForAddress(address, addressType, tokenExplorerPreference, walletExplorerPreference);
 }

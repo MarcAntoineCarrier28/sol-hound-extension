@@ -9,10 +9,6 @@ const LoginStatus: React.FC = () => {
     window.open(baseURL + '/sign-in', '_blank');
   };
 
-  const handleGetPremiumClick = () => {
-    window.open(baseURL + '/#pricing', '_blank');
-  };
-
   const handleLogoutClick = () => {
     window.open(baseURL + '/sign-out', '_blank');
   };

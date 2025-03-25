@@ -1,5 +1,8 @@
-export const baseURL = "http://localhost:8080";
+// src/data/const.ts
+import { config } from "@/utils/environment";
 
+// Get the base URL from environment configuration
+export const baseURL = config.baseUrl;
 
 // ==========================================
 // Token Explorer Options

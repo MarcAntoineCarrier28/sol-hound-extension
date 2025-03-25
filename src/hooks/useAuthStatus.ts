@@ -1,9 +1,9 @@
 // src/hooks/useAuthStatus.ts
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getStoredAuthStatus, setStoredAuthStatus, AuthStatus } from '../utils/auth-storage';
-import { baseURL } from '@/data/const';
+import { config, log, logError } from '@/utils/environment';
 
-const API_ENDPOINT = baseURL + '/auth/status'; // Update with your endpoint
+const API_ENDPOINT = `${config.apiUrl}/auth/status`;
 
 // Create a singleton pattern to track ongoing fetches
 let fetchPromise: Promise<AuthStatus> | null = null;
@@ -29,7 +29,7 @@ const fetchAuthStatus = async (): Promise<AuthStatus> => {
   // Create a new fetch promise
   fetchPromise = (async () => {
     try {
-      console.log('Fetching auth status...');
+      log('Fetching auth status...');
       const response = await fetch(API_ENDPOINT, {
         method: 'GET',
         credentials: 'include', // Ensures cookies are sent with the request
@@ -37,14 +37,14 @@ const fetchAuthStatus = async (): Promise<AuthStatus> => {
 
       let newStatus: AuthStatus;
       if (response.ok) {
-        console.log('Fetched auth status');
+        log('Fetched auth status successfully');
         const data = await response.json();
         newStatus = {
           session: data.session,
           subscription: data.subscription,
         };
       } else {
-        console.log('Problem fetching auth status');
+        log(`Problem fetching auth status: ${response.status}`);
         // In case of an error (e.g., 401 Unauthorized)
         newStatus = { session: null, subscription: null };
       }
@@ -53,7 +53,7 @@ const fetchAuthStatus = async (): Promise<AuthStatus> => {
       await setStoredAuthStatus(newStatus);
       return newStatus;
     } catch (error) {
-      console.error('Error fetching auth status:', error);
+      logError('Error fetching auth status:', error);
       // Return the last known state in case of error
       return getStoredAuthStatus();
     } finally {
@@ -95,7 +95,7 @@ export function useAuthStatus(pollInterval = 300000) {
       // Return whether premium status changed
       return hasPremiumChanged(previousStatusRef.current, freshStatus);
     } catch (error) {
-      console.error('Error refreshing auth status:', error);
+      logError('Error refreshing auth status:', error);
       return false;
     }
   }, [authStatus, hasPremiumChanged]);
@@ -115,7 +115,7 @@ export function useAuthStatus(pollInterval = 300000) {
         // Then refresh from the server
         await refreshAuthStatus();
       } catch (error) {
-        console.error('Error in auth status initialization:', error);
+        logError('Error in auth status initialization:', error);
         setLoading(false);
       }
     })();

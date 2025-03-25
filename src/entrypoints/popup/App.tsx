@@ -9,8 +9,8 @@ import TradingPlatformSelector from '@/components/trading-platform-selector';
 import LoginStatus from '@/components/login-status';
 import { useFeatureToggles } from '@/hooks/useFeatureToggles';
 import { useAuthStatus } from '@/hooks/useAuthStatus';
-import { getStoredAuthStatus } from '@/utils/auth-storage';
 import { storage } from '@wxt-dev/storage';
+import { baseURL } from '@/data/const';
 
 const App: React.FC = () => {
   const { 
@@ -127,7 +127,7 @@ const App: React.FC = () => {
         {!hasPremium && (
           <button 
             className="upgrade-pro-button"
-            onClick={() => window.open('http://localhost:8080/#pricing', '_blank')}
+            onClick={() => window.open(baseURL + '/#pricing', '_blank')}
           >
             Upgrade to get access
           </button>
@@ -141,7 +141,7 @@ const App: React.FC = () => {
         ) : !authStatus.session ? (
           <button 
             className="login-button"
-            onClick={() => window.open('http://localhost:8080/sign-in', '_blank')}
+            onClick={() => window.open(baseURL + '/sign-in', '_blank')}
           >
             Login
           </button>
