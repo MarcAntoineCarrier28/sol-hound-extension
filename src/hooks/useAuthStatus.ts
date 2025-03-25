@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { getStoredAuthStatus, setStoredAuthStatus, AuthStatus } from '../utils/auth-storage';
 import { config, log, logError } from '@/utils/environment';
 
-const API_ENDPOINT = `${config.apiUrl}/auth/status`;
+const API_ENDPOINT = `${config.baseUrl}/auth/status`;
 
 // Create a singleton pattern to track ongoing fetches
 let fetchPromise: Promise<AuthStatus> | null = null;
