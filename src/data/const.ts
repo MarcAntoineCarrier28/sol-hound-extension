@@ -120,11 +120,6 @@ export const TRADING_PLATFORM_OPTIONS = [
   tradingPlatform5,
 ];
 
-// Special case for Pump token addresses
-export function getPumpTokenUrl(address: string): string {
-  return `https://pump.fun/coin/${address}`;
-}
-
 // Utility function to get URL based on address type
 export function getUrlForAddress(
   address: string, 
@@ -132,11 +127,6 @@ export function getUrlForAddress(
   tokenExplorerPreference: string,
   walletExplorerPreference: string,
 ): string {
-  // Special case for pump tokens
-  if (address.includes('pump')) {
-    return getPumpTokenUrl(address);
-  }
-  
   // Use the appropriate explorer based on address type
   if (addressType === 'token') {
     return TOKEN_EXPLORERS[tokenExplorerPreference]?.getUrl(address) || 
@@ -158,9 +148,6 @@ export function getTradingPlatformUrl(
   address: string,
   platformPreference: string
 ): string {
-  if (address.includes('pump')) {
-    return getPumpTokenUrl(address);
-  }
   
   return TRADING_PLATFORMS[platformPreference]?.getUrl(address) || 
          TRADING_PLATFORMS[tradingPlatform1].getUrl(address);

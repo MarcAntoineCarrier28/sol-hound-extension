@@ -51,7 +51,6 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
       // Premium features should already be disabled by the popup
       // This is just a safety check for the content script
       console.log('Non-premium user has premium features enabled, ignoring');
-      // We don't modify storage here, as that should be handled by the popup
     }
 
     // Load address cache to pre-label known addresses

@@ -18,8 +18,8 @@ export default defineConfig({
       ? `${import.meta.env.WXT_APP_NAME} (Dev)`
       : import.meta.env.WXT_APP_NAME,
     description: "Detects and highlights Solana contract addresses on web pages.",
-    version: import.meta.env.WXT_APP_VERSION || '0.0.1',
+    version: import.meta.env.WXT_APP_VERSION || '0.0.2',
     permissions: ['storage'],
-    host_permissions: ["*://*/*"],
+    host_permissions: ["<all_urls>"],
   }),
 });
