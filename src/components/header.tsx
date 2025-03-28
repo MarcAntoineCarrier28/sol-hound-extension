@@ -1,20 +1,20 @@
 import { baseURL } from "@/data/const";
-import React from "react";
+import React, { memo, useCallback } from "react";
 
 interface HeaderProps {
   isPro: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ 
+const Header: React.FC<HeaderProps> = memo(({ 
   isPro,
 }) => {
-  const handleLogoClick = () => {
+  const handleLogoClick = useCallback(() => {
     window.open(baseURL, "_blank");
-  };
+  }, []);
 
-  const handleSupportClick = () => {
+  const handleSupportClick = useCallback(() => {
     window.open(baseURL + "/#contact", "_blank");
-  };
+  }, []);
 
   return (
     <div className="header">
@@ -28,6 +28,8 @@ const Header: React.FC<HeaderProps> = ({
       </button>
     </div>
   );
-};
+});
+
+Header.displayName = 'Header';
 
 export default Header;

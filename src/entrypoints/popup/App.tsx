@@ -29,7 +29,6 @@ const App: React.FC = () => {
   // Check if token redirect should be disabled (when trading is enabled for premium users)
   const isTokenRedirectDisabled = toggles.highlightCAs ? (hasPremium && toggles.enableTrading) : true;
 
-  // Watch for auth status changes
   useEffect(() => {
     const watchAuthStatus = async () => {
       try {
@@ -54,11 +53,7 @@ const App: React.FC = () => {
     };
     
     watchAuthStatus();
-  }, [resetPremiumFeatureToggles]);
-  
-  // Check premium status changes directly
-  useEffect(() => {
-    // If user has lost premium status, reset premium features
+    
     if (previousPremiumStatus.current && !hasPremium) {
       console.log('Premium status lost, resetting premium features');
       resetPremiumFeatureToggles();
@@ -105,13 +100,14 @@ const App: React.FC = () => {
           <span className="premium-feature-indicator">PRO Features</span>
         </div>
         
-        {/* Use the original PremiumFeature component for one-click trading */}
+        {/* Use the optimized PremiumFeature component with isPremium prop */}
         <PremiumFeature 
           label="One-click trading" 
           checked={toggles.enableTrading}
           onChange={(value) => toggles.highlightCAs ? updateToggle("enableTrading", value) : null}
           toggleKey="enableTrading"
-          locked={!toggles.highlightCAs || !hasPremium}
+          locked={!toggles.highlightCAs}
+          isPremium={hasPremium}
         />
         
         {/* Trading platform selector - conditionally rendered and styled as a submenu */}
@@ -146,7 +142,7 @@ const App: React.FC = () => {
             Login
           </button>
         ) : (
-          <LoginStatus />
+          <LoginStatus authStatus={authStatus} loading={loading} />
         )}
       </div>
     </>

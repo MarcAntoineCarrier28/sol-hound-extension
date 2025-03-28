@@ -1,17 +1,20 @@
-import React from 'react';
-import { useAuthStatus } from '../hooks/useAuthStatus';
+import React, { memo, useCallback } from 'react';
+import { AuthStatus } from '@/utils/auth-storage';
 import { baseURL } from '@/data/const';
 
-const LoginStatus: React.FC = () => {
-  const { authStatus, loading } = useAuthStatus();
+interface LoginStatusProps {
+  authStatus: AuthStatus;
+  loading: boolean;
+}
 
-  const handleLoginClick = () => {
+const LoginStatus: React.FC<LoginStatusProps> = memo(({ authStatus, loading }) => {
+  const handleLoginClick = useCallback(() => {
     window.open(baseURL + '/sign-in', '_blank');
-  };
+  }, []);
 
-  const handleLogoutClick = () => {
+  const handleLogoutClick = useCallback(() => {
     window.open(baseURL + '/sign-out', '_blank');
-  };
+  }, []);
 
   if (loading) return <p>Loading...</p>;
 
@@ -30,6 +33,8 @@ const LoginStatus: React.FC = () => {
       <button className='btn-secondary' style={{ marginTop: '8px' }} onClick={handleLogoutClick}>Logout</button>
     </div>
   );
-};
+});
+
+LoginStatus.displayName = 'LoginStatus';
 
 export default LoginStatus;
