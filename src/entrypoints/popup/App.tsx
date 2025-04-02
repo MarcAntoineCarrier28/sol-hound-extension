@@ -9,8 +9,8 @@ import TradingPlatformSelector from '@/components/trading-platform-selector';
 import LoginStatus from '@/components/login-status';
 import { useFeatureToggles } from '@/hooks/useFeatureToggles';
 import { useAuthStatus } from '@/hooks/useAuthStatus';
-import { getStoredAuthStatus } from '@/utils/auth-storage';
 import { storage } from '@wxt-dev/storage';
+import { baseURL } from '@/data/const';
 
 const App: React.FC = () => {
   const { 
@@ -29,7 +29,6 @@ const App: React.FC = () => {
   // Check if token redirect should be disabled (when trading is enabled for premium users)
   const isTokenRedirectDisabled = toggles.highlightCAs ? (hasPremium && toggles.enableTrading) : true;
 
-  // Watch for auth status changes
   useEffect(() => {
     const watchAuthStatus = async () => {
       try {
@@ -54,11 +53,7 @@ const App: React.FC = () => {
     };
     
     watchAuthStatus();
-  }, [resetPremiumFeatureToggles]);
-  
-  // Check premium status changes directly
-  useEffect(() => {
-    // If user has lost premium status, reset premium features
+    
     if (previousPremiumStatus.current && !hasPremium) {
       console.log('Premium status lost, resetting premium features');
       resetPremiumFeatureToggles();
@@ -105,13 +100,14 @@ const App: React.FC = () => {
           <span className="premium-feature-indicator">PRO Features</span>
         </div>
         
-        {/* Use the original PremiumFeature component for one-click trading */}
+        {/* Use the optimized PremiumFeature component with isPremium prop */}
         <PremiumFeature 
           label="One-click trading" 
           checked={toggles.enableTrading}
           onChange={(value) => toggles.highlightCAs ? updateToggle("enableTrading", value) : null}
           toggleKey="enableTrading"
-          locked={!toggles.highlightCAs || !hasPremium}
+          locked={!toggles.highlightCAs}
+          isPremium={hasPremium}
         />
         
         {/* Trading platform selector - conditionally rendered and styled as a submenu */}
@@ -127,7 +123,7 @@ const App: React.FC = () => {
         {!hasPremium && (
           <button 
             className="upgrade-pro-button"
-            onClick={() => window.open('http://localhost:8080/#pricing', '_blank')}
+            onClick={() => window.open(baseURL + '/#pricing', '_blank')}
           >
             Upgrade to get access
           </button>
@@ -141,12 +137,12 @@ const App: React.FC = () => {
         ) : !authStatus.session ? (
           <button 
             className="login-button"
-            onClick={() => window.open('http://localhost:8080/sign-in', '_blank')}
+            onClick={() => window.open(baseURL + '/sign-in', '_blank')}
           >
             Login
           </button>
         ) : (
-          <LoginStatus />
+          <LoginStatus authStatus={authStatus} loading={loading} />
         )}
       </div>
     </>

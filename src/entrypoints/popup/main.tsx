@@ -3,8 +3,14 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './style.css';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+// StrictMode causes double rendering which is good for development
+// but can slow down the popup in production
+const AppRoot = process.env.NODE_ENV === 'production' 
+  ? <App /> 
+  : (
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+
+ReactDOM.createRoot(document.getElementById('root')!).render(AppRoot);

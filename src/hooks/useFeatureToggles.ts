@@ -1,5 +1,5 @@
 // src/hooks/useFeatureToggles.ts
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { 
   getStoredFeatureToggles, 
   setStoredFeatureToggles,
@@ -12,51 +12,84 @@ import {
   tradingPlatform1
 } from "@/data/const";
 
-export function useFeatureToggles() {
-  const [toggles, setToggles] = useState<FeatureToggles>({
-    highlightCAs: true,
-    enableTrading: false,
-    enableCustomization: false,
-    enableAnalytics: false,
-    tokenRedirectPreference: tokenExplorer1,
-    walletRedirectPreference: walletExplorer1,
-    tradingPlatformPreference: tradingPlatform1
-  });
+// Default toggles available for initial render before storage is loaded
+const defaultToggles: FeatureToggles = {
+  highlightCAs: true,
+  enableTrading: false,
+  enableCustomization: false,
+  enableAnalytics: false,
+  tokenRedirectPreference: tokenExplorer1,
+  walletRedirectPreference: walletExplorer1,
+  tradingPlatformPreference: tradingPlatform1
+};
 
+export function useFeatureToggles() {
+  const [toggles, setToggles] = useState<FeatureToggles>(defaultToggles);
+  // Ref to track pending updates to batch them
+  const updateTimeoutRef = useRef<number | null>(null);
+  
+  // Load stored toggles on mount
   useEffect(() => {
-    // Load stored toggle state on mount
+    let mounted = true;
+    
     (async () => {
       const storedToggles = await getStoredFeatureToggles();
-      setToggles(storedToggles);
+      if (mounted) {
+        setToggles(storedToggles);
+      }
     })();
+    
+    return () => {
+      mounted = false;
+      // Clear any pending updates
+      if (updateTimeoutRef.current !== null) {
+        window.clearTimeout(updateTimeoutRef.current);
+      }
+    };
   }, []);
 
-  const updateToggle = async (
-    key: keyof Omit<FeatureToggles, 'tokenRedirectPreference' | 'walletRedirectPreference' | 'tradingPlatformPreference'>, 
-    value: boolean
-  ) => {
-    const newToggles = { ...toggles, [key]: value };
-    setToggles(newToggles);
-    await setStoredFeatureToggles(newToggles);
-  };
+  // Debounced storage update to batch multiple rapid changes
+  const debouncedUpdateStorage = useCallback((newToggles: FeatureToggles) => {
+    if (updateTimeoutRef.current !== null) {
+      window.clearTimeout(updateTimeoutRef.current);
+    }
+    
+    // Update after a short delay to batch rapid changes
+    updateTimeoutRef.current = window.setTimeout(async () => {
+      await setStoredFeatureToggles(newToggles);
+      updateTimeoutRef.current = null;
+    }, 150);
+  }, []);
 
-  const updateTokenRedirectPreference = async (value: string) => {
+  const updateToggle = useCallback(
+    (
+      key: keyof Omit<FeatureToggles, 'tokenRedirectPreference' | 'walletRedirectPreference' | 'tradingPlatformPreference'>, 
+      value: boolean
+    ) => {
+      const newToggles = { ...toggles, [key]: value };
+      setToggles(newToggles);
+      debouncedUpdateStorage(newToggles);
+    },
+    [toggles, debouncedUpdateStorage]
+  );
+
+  const updateTokenRedirectPreference = useCallback((value: string) => {
     const newToggles = { ...toggles, tokenRedirectPreference: value };
     setToggles(newToggles);
-    await setStoredFeatureToggles(newToggles);
-  };
+    debouncedUpdateStorage(newToggles);
+  }, [toggles, debouncedUpdateStorage]);
 
-  const updateWalletRedirectPreference = async (value: string) => {
+  const updateWalletRedirectPreference = useCallback((value: string) => {
     const newToggles = { ...toggles, walletRedirectPreference: value };
     setToggles(newToggles);
-    await setStoredFeatureToggles(newToggles);
-  };
+    debouncedUpdateStorage(newToggles);
+  }, [toggles, debouncedUpdateStorage]);
 
-  const updateTradingPlatformPreference = async (value: string) => {
+  const updateTradingPlatformPreference = useCallback((value: string) => {
     const newToggles = { ...toggles, tradingPlatformPreference: value };
     setToggles(newToggles);
-    await setStoredFeatureToggles(newToggles);
-  };
+    debouncedUpdateStorage(newToggles);
+  }, [toggles, debouncedUpdateStorage]);
 
   /**
    * Resets premium features when user logs out or premium status changes

@@ -1,5 +1,4 @@
 import React, { ReactNode } from 'react';
-import { useAuthStatus } from '@/hooks/useAuthStatus';
 
 interface PremiumFeatureProps {
   label: string;
@@ -8,6 +7,7 @@ interface PremiumFeatureProps {
   onChange?: (checked: boolean) => void;
   children?: ReactNode;
   locked?: boolean;
+  isPremium: boolean;
 }
 
 const PremiumFeature: React.FC<PremiumFeatureProps> = ({ 
@@ -16,11 +16,9 @@ const PremiumFeature: React.FC<PremiumFeatureProps> = ({
   checked = false, 
   onChange,
   children,
-  locked = false
+  locked = false,
+  isPremium
 }) => {
-  const { authStatus } = useAuthStatus();
-  const isPremium = !!authStatus.subscription;
-  
   // Feature is locked if user doesn't have premium OR if it's explicitly locked
   const isLocked = !isPremium || locked;
   

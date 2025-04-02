@@ -1,14 +1,14 @@
 // src/hooks/useAuthStatus.ts
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getStoredAuthStatus, setStoredAuthStatus, AuthStatus } from '../utils/auth-storage';
-import { baseURL } from '@/data/const';
+import { config, log, logError } from '@/utils/environment';
 
-const API_ENDPOINT = baseURL + '/auth/status'; // Update with your endpoint
+const API_ENDPOINT = `${config.baseUrl}/auth/status`;
 
 // Create a singleton pattern to track ongoing fetches
 let fetchPromise: Promise<AuthStatus> | null = null;
 let lastFetchTime = 0;
-const FETCH_COOLDOWN = 5000; // 5 seconds minimum between fetches
+const FETCH_COOLDOWN = 10000; // Increased to 10 seconds to reduce API calls
 
 /**
  * Fetch the auth status with deduplication to prevent multiple simultaneous calls
@@ -29,7 +29,7 @@ const fetchAuthStatus = async (): Promise<AuthStatus> => {
   // Create a new fetch promise
   fetchPromise = (async () => {
     try {
-      console.log('Fetching auth status...');
+      log('Fetching auth status...');
       const response = await fetch(API_ENDPOINT, {
         method: 'GET',
         credentials: 'include', // Ensures cookies are sent with the request
@@ -37,14 +37,14 @@ const fetchAuthStatus = async (): Promise<AuthStatus> => {
 
       let newStatus: AuthStatus;
       if (response.ok) {
-        console.log('Fetched auth status');
+        log('Fetched auth status successfully');
         const data = await response.json();
         newStatus = {
           session: data.session,
           subscription: data.subscription,
         };
       } else {
-        console.log('Problem fetching auth status');
+        log(`Problem fetching auth status: ${response.status}`);
         // In case of an error (e.g., 401 Unauthorized)
         newStatus = { session: null, subscription: null };
       }
@@ -53,7 +53,7 @@ const fetchAuthStatus = async (): Promise<AuthStatus> => {
       await setStoredAuthStatus(newStatus);
       return newStatus;
     } catch (error) {
-      console.error('Error fetching auth status:', error);
+      logError('Error fetching auth status:', error);
       // Return the last known state in case of error
       return getStoredAuthStatus();
     } finally {
@@ -67,18 +67,28 @@ const fetchAuthStatus = async (): Promise<AuthStatus> => {
   return fetchPromise;
 };
 
-export function useAuthStatus(pollInterval = 300000) {
+// Default to a longer polling interval of 20 minutes to reduce API calls
+export function useAuthStatus(pollInterval = 1200000) {
   const [authStatus, setAuthStatusState] = useState<AuthStatus>({ session: null, subscription: null });
   const [loading, setLoading] = useState(true);
   const previousStatusRef = useRef<AuthStatus | null>(null);
+  const statusIsDifferent = useRef<boolean>(false);
 
-  // Function to check if premium status has changed
-  const hasPremiumChanged = useCallback((oldStatus: AuthStatus | null, newStatus: AuthStatus): boolean => {
-    // Check if premium status changed from true to false
-    const hadPremium = oldStatus?.subscription !== null;
-    const hasPremium = newStatus.subscription !== null;
+  // Function to check if status has meaningful changes to avoid unnecessary re-renders
+  const hasStatusChanged = useCallback((oldStatus: AuthStatus | null, newStatus: AuthStatus): boolean => {
+    if (!oldStatus) return true;
     
-    return hadPremium !== hasPremium;
+    // Check if session state changed
+    const sessionChanged = 
+      (oldStatus.session === null && newStatus.session !== null) || 
+      (oldStatus.session !== null && newStatus.session === null);
+      
+    // Check if subscription state changed
+    const subscriptionChanged = 
+      (oldStatus.subscription === null && newStatus.subscription !== null) || 
+      (oldStatus.subscription !== null && newStatus.subscription === null);
+    
+    return sessionChanged || subscriptionChanged;
   }, []);
 
   // Function to refresh the auth status
@@ -86,50 +96,61 @@ export function useAuthStatus(pollInterval = 300000) {
     try {
       const freshStatus = await fetchAuthStatus();
       
-      // Store the previous status before updating
-      previousStatusRef.current = authStatus;
+      // Only update state if something important changed
+      if (hasStatusChanged(authStatus, freshStatus)) {
+        // Store the previous status before updating
+        previousStatusRef.current = authStatus;
+        statusIsDifferent.current = true;
+        
+        // Update the state with the fresh status
+        setAuthStatusState(freshStatus);
+        return true;
+      }
       
-      // Update the state with the fresh status
-      setAuthStatusState(freshStatus);
-      
-      // Return whether premium status changed
-      return hasPremiumChanged(previousStatusRef.current, freshStatus);
+      return false;
     } catch (error) {
-      console.error('Error refreshing auth status:', error);
+      logError('Error refreshing auth status:', error);
       return false;
     }
-  }, [authStatus, hasPremiumChanged]);
+  }, [authStatus, hasStatusChanged]);
 
   useEffect(() => {
+    let mounted = true;
+    
     // On mount, load the cached status and immediately try to refresh it
     (async () => {
       try {
         // First load from cache to have something immediately
         const storedStatus = await getStoredAuthStatus();
-        setAuthStatusState(storedStatus);
-        setLoading(false);
+        if (mounted) {
+          setAuthStatusState(storedStatus);
+          setLoading(false);
+          
+          // Store initial status for future comparison
+          previousStatusRef.current = storedStatus;
         
-        // Store initial status for future comparison
-        previousStatusRef.current = storedStatus;
-        
-        // Then refresh from the server
-        await refreshAuthStatus();
+          // Then refresh from the server - but don't wait for it
+          refreshAuthStatus();
+        }
       } catch (error) {
-        console.error('Error in auth status initialization:', error);
-        setLoading(false);
+        logError('Error in auth status initialization:', error);
+        if (mounted) setLoading(false);
       }
     })();
 
     // Set up periodic polling at a reduced frequency
     const intervalId = setInterval(refreshAuthStatus, pollInterval);
     
-    return () => clearInterval(intervalId);
+    return () => {
+      mounted = false;
+      clearInterval(intervalId);
+    };
   }, [pollInterval, refreshAuthStatus]);
 
   return { 
     authStatus, 
     loading, 
     refreshAuthStatus,
-    hasPremiumStatusChanged: () => hasPremiumChanged(previousStatusRef.current, authStatus)
+    statusChanged: statusIsDifferent.current
   };
 }
