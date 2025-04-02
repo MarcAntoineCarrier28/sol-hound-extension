@@ -1,5 +1,5 @@
 // src/utils/address-verification.ts
-import { storage } from "@wxt-dev/storage";
+import { storage } from "#imports";
 import { getUrlForAddress, getTradingPlatformUrl } from "@/data/const";
 import { config, log, logError } from "@/utils/environment";
 

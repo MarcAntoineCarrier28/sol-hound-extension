@@ -1,5 +1,5 @@
 // src/utils/feature-storage.ts
-import { storage } from "@wxt-dev/storage";
+import { storage } from "#imports";
 import { 
   tokenExplorer1, 
   walletExplorer1, 

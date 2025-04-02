@@ -1,5 +1,5 @@
 // src/utils/authStorage.ts
-import { storage } from '@wxt-dev/storage';
+import { storage } from '#imports';
 
 export interface Session {
   user: {

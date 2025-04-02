@@ -1,8 +1,9 @@
 import "./highlight-styles.css";
 import highlightAddresses from "./highlighting";
 import { getStoredFeatureToggles } from "../utils/feature-storage";
-import { storage } from "@wxt-dev/storage";
+import { storage, defineContentScript } from "#imports";
 import { getAddressCache } from "../utils/address-verification";
+import { getStoredAuthStatus } from "../utils/auth-storage";
 
 export default defineContentScript({
   matches: ["*://*/*"],

@@ -9,7 +9,7 @@ import TradingPlatformSelector from '@/components/trading-platform-selector';
 import LoginStatus from '@/components/login-status';
 import { useFeatureToggles } from '@/hooks/useFeatureToggles';
 import { useAuthStatus } from '@/hooks/useAuthStatus';
-import { storage } from '@wxt-dev/storage';
+import { storage } from '#imports';
 import { baseURL } from '@/data/const';
 
 const App: React.FC = () => {
