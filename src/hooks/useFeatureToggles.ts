@@ -9,7 +9,8 @@ import {
 import { 
   tokenExplorer1, 
   walletExplorer1, 
-  tradingPlatform1
+  tradingPlatform1,
+  highlightPresets
 } from "@/data/const";
 
 // Default toggles available for initial render before storage is loaded
@@ -20,7 +21,20 @@ const defaultToggles: FeatureToggles = {
   enableAnalytics: false,
   tokenRedirectPreference: tokenExplorer1,
   walletRedirectPreference: walletExplorer1,
-  tradingPlatformPreference: tradingPlatform1
+  tradingPlatformPreference: tradingPlatform1,
+  highlightStyles: highlightPresets[0].solanaStyle && highlightPresets[0].pumpStyle ? {
+    solanaStyle: { ...highlightPresets[0].solanaStyle },
+    pumpStyle: { ...highlightPresets[0].pumpStyle }
+  } : {
+    solanaStyle: {
+      colors: ['#9945ff', '#14f195', '#00ffc2', '#9945ff'],
+      animationSpeed: 1.5
+    },
+    pumpStyle: {
+      colors: ['#00ff00', '#ffffff', '#ffffff', '#00ff00'],
+      animationSpeed: 1.5
+    }
+  }
 };
 
 export function useFeatureToggles() {
@@ -92,6 +106,21 @@ export function useFeatureToggles() {
   }, [toggles, debouncedUpdateStorage]);
 
   /**
+   * Updates the highlight styles for customization
+   */
+  const updateHighlightStyles = useCallback((styles: {
+    solanaStyle: { colors: string[], animationSpeed: number };
+    pumpStyle: { colors: string[], animationSpeed: number };
+  }) => {
+    const newToggles = { 
+      ...toggles, 
+      highlightStyles: styles
+    };
+    setToggles(newToggles);
+    debouncedUpdateStorage(newToggles);
+  }, [toggles, debouncedUpdateStorage]);
+
+  /**
    * Resets premium features when user logs out or premium status changes
    */
   const resetPremiumFeatureToggles = useCallback(async () => {
@@ -106,6 +135,7 @@ export function useFeatureToggles() {
     updateTokenRedirectPreference,
     updateWalletRedirectPreference,
     updateTradingPlatformPreference,
+    updateHighlightStyles,
     resetPremiumFeatureToggles
   };
 }

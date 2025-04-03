@@ -3,7 +3,8 @@ import { storage } from "#imports";
 import { 
   tokenExplorer1, 
   walletExplorer1, 
-  tradingPlatform1
+  tradingPlatform1,
+  highlightPresets
 } from "@/data/const";
 
 export interface FeatureToggles {
@@ -15,6 +16,17 @@ export interface FeatureToggles {
   tokenRedirectPreference: string;
   walletRedirectPreference: string;
   tradingPlatformPreference: string;
+  // Custom highlight styles
+  highlightStyles: {
+    solanaStyle: {
+      colors: string[];
+      animationSpeed: number;
+    };
+    pumpStyle: {
+      colors: string[];
+      animationSpeed: number;
+    };
+  };
 }
 
 const DEFAULT_TOGGLES: FeatureToggles = {
@@ -24,7 +36,20 @@ const DEFAULT_TOGGLES: FeatureToggles = {
   enableAnalytics: false,
   tokenRedirectPreference: tokenExplorer1, // Default redirect for tokens
   walletRedirectPreference: walletExplorer1, // Default redirect for wallets
-  tradingPlatformPreference: tradingPlatform1 // Default trading platform
+  tradingPlatformPreference: tradingPlatform1, // Default trading platform
+  highlightStyles: highlightPresets[0].solanaStyle && highlightPresets[0].pumpStyle ? {
+    solanaStyle: { ...highlightPresets[0].solanaStyle },
+    pumpStyle: { ...highlightPresets[0].pumpStyle }
+  } : {
+    solanaStyle: {
+      colors: ['#9945ff', '#14f195', '#00ffc2', '#9945ff'],
+      animationSpeed: 1.5
+    },
+    pumpStyle: {
+      colors: ['#00ff00', '#ffffff', '#ffffff', '#00ff00'],
+      animationSpeed: 1.5
+    }
+  }
 };
 
 export async function getStoredFeatureToggles(): Promise<FeatureToggles> {

@@ -44,7 +44,7 @@ const fetchAuthStatus = async (): Promise<AuthStatus> => {
           subscription: data.subscription,
         };
       } else {
-        log(`Problem fetching auth status: ${response.status}`);
+        log(`Problem fetching auth status, session terminated`);
         // In case of an error (e.g., 401 Unauthorized)
         newStatus = { session: null, subscription: null };
       }

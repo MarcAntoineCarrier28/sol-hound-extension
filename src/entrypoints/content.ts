@@ -18,8 +18,20 @@ export default defineContentScript({
       await getAddressCache();
       
       // Function to apply or remove highlighting
-      const updateHighlighting = (enabled: boolean) => {
-        if (enabled && !observer) {
+      const updateHighlighting = (enabled: boolean, forceRefresh = false) => {
+        if (enabled && (!observer || forceRefresh)) {
+          // If we're forcing a refresh and observer already exists, disconnect it first
+          if (observer && forceRefresh) {
+            observer.disconnect();
+            
+            // Remove existing highlights
+            document.querySelectorAll('[data-address]').forEach((el) => {
+              const textContent = el.getAttribute('data-address');
+              const textNode = document.createTextNode(textContent || '');
+              el.parentNode?.replaceChild(textNode, el);
+            });
+          }
+          
           // Set up the observer for DOM changes
           observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
@@ -39,8 +51,8 @@ export default defineContentScript({
           observer = undefined;
           
           // Remove existing highlights
-          document.querySelectorAll('.solana-highlight, .pump-highlight').forEach((el) => {
-            const textContent = el.textContent;
+          document.querySelectorAll('[data-address]').forEach((el) => {
+            const textContent = el.getAttribute('data-address');
             const textNode = document.createTextNode(textContent || '');
             el.parentNode?.replaceChild(textNode, el);
           });
@@ -51,9 +63,31 @@ export default defineContentScript({
       updateHighlighting(featureToggles.highlightCAs);
       
       // Set up storage watch to listen for changes
-      storage.watch("local:featureToggles", (newValue) => {
-        if (newValue && typeof newValue === 'object' && 'highlightCAs' in newValue) {
-          updateHighlighting(newValue.highlightCAs as boolean);
+      storage.watch("local:featureToggles", (newValue, oldValue) => {
+        if (newValue && typeof newValue === 'object') {
+          const newToggles = newValue as any;
+          const oldToggles = oldValue as any || {};
+          
+          // Handle highlight CA toggle changing
+          if ('highlightCAs' in newToggles && newToggles.highlightCAs !== oldToggles.highlightCAs) {
+            updateHighlighting(newToggles.highlightCAs as boolean);
+          }
+          
+          // Handle customization settings changing - need to refresh highlights
+          if (
+            newToggles.highlightCAs && 
+            (
+              // Customization was toggled
+              ('enableCustomization' in newToggles && newToggles.enableCustomization !== oldToggles.enableCustomization) ||
+              // Highlight styles were changed
+              (newToggles.enableCustomization && 
+               'highlightStyles' in newToggles && 
+               JSON.stringify(newToggles.highlightStyles) !== JSON.stringify(oldToggles.highlightStyles))
+            )
+          ) {
+            // Force a refresh when customization settings change
+            updateHighlighting(true, true);
+          }
         }
       });
       

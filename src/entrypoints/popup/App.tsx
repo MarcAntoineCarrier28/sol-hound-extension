@@ -5,6 +5,7 @@ import PremiumFeature from '@/components/premium-feature';
 import TokenRedirectSelector from '@/components/token-redirect-selector';
 import WalletRedirectSelector from '@/components/wallet-redirect-selector';
 import TradingPlatformSelector from '@/components/trading-platform-selector';
+import HighlightStyleCustomizer from '@/components/highlight-style-customizer';
 import LoginStatus from '@/components/login-status';
 import { useFeatureToggles } from '@/hooks/useFeatureToggles';
 import { useAuthStatus } from '@/hooks/useAuthStatus';
@@ -18,6 +19,7 @@ const App: React.FC = () => {
     updateTokenRedirectPreference, 
     updateWalletRedirectPreference, 
     updateTradingPlatformPreference,
+    updateHighlightStyles,
     resetPremiumFeatureToggles
   } = useFeatureToggles();
   
@@ -136,7 +138,7 @@ const App: React.FC = () => {
       </div>
 
       {/* Premium features section with purple border */}
-      <div className="relative border border-purple-600 rounded-md p-3 pt-5 mt-6 mb-2 bg-gray-800">
+      <div className="relative mt-6 border border-purple-600 rounded-lg p-4 pb-2">
         <div className="absolute -top-3 left-1/2 border border-purple-600 -translate-x-1/2 bg-gray-900 px-2.5 py-0.5 rounded z-10">
           <span className="text-purple-400 text-xs font-semibold">PRO Features</span>
         </div>
@@ -157,6 +159,26 @@ const App: React.FC = () => {
             value={toggles.tradingPlatformPreference}
             onChange={(value) => updateTradingPlatformPreference(value)}
             disabled={!toggles.enableTrading || !toggles.highlightCAs}
+          />
+        )}
+        
+        {/* Highlighting style customization */}
+        <PremiumFeature 
+          label="Custom highlight styles" 
+          checked={toggles.enableCustomization}
+          onChange={(value) => toggles.highlightCAs ? updateToggle("enableCustomization", value) : null}
+          toggleKey="enableCustomization"
+          locked={!toggles.highlightCAs}
+          isPremium={hasPremium}
+        />
+        
+        {/* Highlight style customizer - conditionally rendered when customization is enabled */}
+        {hasPremium && toggles.enableCustomization && toggles.highlightCAs && (
+          <HighlightStyleCustomizer
+            solanaStyle={toggles.highlightStyles.solanaStyle}
+            pumpStyle={toggles.highlightStyles.pumpStyle}
+            onChange={(styles) => updateHighlightStyles(styles)}
+            disabled={!toggles.enableCustomization || !toggles.highlightCAs}
           />
         )}
         
