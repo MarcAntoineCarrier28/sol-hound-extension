@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import './App.css';
 import Header from '@/components/header';
 import FeatureToggle from '@/components/feature-toggle';
 import PremiumFeature from '@/components/premium-feature';
@@ -23,6 +22,7 @@ const App: React.FC = () => {
   } = useFeatureToggles();
   
   const { authStatus, loading } = useAuthStatus();
+  const isLoggedIn = !!authStatus.session;
   const hasPremium = !!authStatus.subscription;
   const previousPremiumStatus = useRef<boolean>(hasPremium);
   
@@ -63,11 +63,52 @@ const App: React.FC = () => {
     previousPremiumStatus.current = hasPremium;
   }, [hasPremium, resetPremiumFeatureToggles]);
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="w-full min-h-[300px] flex flex-col bg-gray-900 text-white">
+        <Header isPro={hasPremium} />
+        <div className="flex items-center justify-center flex-1 min-h-[150px]">Loading...</div>
+      </div>
+    );
+  }
+
+  // Show login screen if user is not logged in
+  if (!isLoggedIn) {
+    return (
+      <div className="w-full min-h-[300px] flex flex-col bg-gray-900 text-white">
+        <Header isPro={false} />
+        
+        <div className="flex flex-col items-center justify-center text-center p-6 flex-1">
+          <h2 className="text-xl mb-2 text-white">Login to use SolHound</h2>
+          
+          <div className="flex gap-3 mt-2">
+            <button 
+              className="w-36 bg-purple-700 text-white border-none rounded py-2.5 px-5 font-medium cursor-pointer transition-colors hover:bg-purple-600"
+              onClick={() => window.open(baseURL + '/sign-in', '_blank')}
+            >
+              Login
+            </button>
+          </div>
+          <p className="text-sm text-gray-400 mt-4">
+              Don't have an account?{" "}
+              <a 
+                className="text-purple-400 hover:text-purple-300 cursor-pointer"
+                onClick={() => window.open(baseURL + '/sign-up', '_blank')}
+              >
+                Sign up
+              </a>
+            </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <>
+    <div className="w-full font-sans text-center bg-gray-900 text-white rounded-lg">
       <Header isPro={hasPremium}/>
 
-      <div className="section">
+      <div className="mb-2 pb-2">
         <FeatureToggle
           label="Highlight CA's"
           checked={toggles.highlightCAs}
@@ -76,7 +117,7 @@ const App: React.FC = () => {
         
         {/* Only show redirect selectors if highlighting is enabled */}
         {toggles.highlightCAs && (
-          <div className="redirect-settings">
+          <div className="mt-2">
             {/* Always show token redirect selector, but disable it when appropriate */}
             <TokenRedirectSelector
               value={toggles.tokenRedirectPreference}
@@ -95,9 +136,9 @@ const App: React.FC = () => {
       </div>
 
       {/* Premium features section with purple border */}
-      <div className="section premium-section">
-        <div className="premium-title">
-          <span className="premium-feature-indicator">PRO Features</span>
+      <div className="relative border border-purple-600 rounded-md p-3 pt-5 mt-6 mb-2 bg-gray-800">
+        <div className="absolute -top-3 left-1/2 border border-purple-600 -translate-x-1/2 bg-gray-900 px-2.5 py-0.5 rounded z-10">
+          <span className="text-purple-400 text-xs font-semibold">PRO Features</span>
         </div>
         
         {/* Use the optimized PremiumFeature component with isPremium prop */}
@@ -122,7 +163,7 @@ const App: React.FC = () => {
         {/* Show upgrade button for non-premium users */}
         {!hasPremium && (
           <button 
-            className="upgrade-pro-button"
+            className="w-full bg-purple-700 text-white border-none rounded-lg py-2 mt-3 cursor-pointer transition-colors hover:bg-purple-600"
             onClick={() => window.open(baseURL + '/#pricing', '_blank')}
           >
             Upgrade to get access
@@ -130,22 +171,11 @@ const App: React.FC = () => {
         )}
       </div>
 
-      {/* Auth status/login section */}
-      <div className="auth-status">
-        {loading ? (
-          <div>Loading...</div>
-        ) : !authStatus.session ? (
-          <button 
-            className="login-button"
-            onClick={() => window.open(baseURL + '/sign-in', '_blank')}
-          >
-            Login
-          </button>
-        ) : (
-          <LoginStatus authStatus={authStatus} loading={loading} />
-        )}
+      {/* Auth status section */}
+      <div className="mt-4">
+        <LoginStatus authStatus={authStatus} loading={loading} />
       </div>
-    </>
+    </div>
   );
 };
 

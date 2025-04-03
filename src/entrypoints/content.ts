@@ -1,4 +1,4 @@
-import "./highlight-styles.css";
+import '@/assets/content.css';
 import highlightAddresses from "./highlighting";
 import { getStoredFeatureToggles } from "../utils/feature-storage";
 import { storage, defineContentScript } from "#imports";

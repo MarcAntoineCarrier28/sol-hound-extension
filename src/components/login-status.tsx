@@ -16,21 +16,33 @@ const LoginStatus: React.FC<LoginStatusProps> = memo(({ authStatus, loading }) =
     window.open(baseURL + '/sign-out', '_blank');
   }, []);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p className="text-gray-300">Loading...</p>;
 
   if (!authStatus.session) {
-    return <button className='btn-primary' onClick={handleLoginClick}>Login</button>;
+    return (
+      <button 
+        className="bg-purple-700 text-white border-none rounded py-2 px-4 font-medium cursor-pointer transition-colors hover:bg-purple-600"
+        onClick={handleLoginClick}
+      >
+        Login
+      </button>
+    );
   }
 
   return (
-    <div>
-      <p>
-        Welcome <strong>{authStatus.session.user.email}</strong>
+    <div className="text-center">
+      <p className="mb-1">
+        Welcome <strong className="font-semibold">{authStatus.session.user.email}</strong>
       </p>
-      {authStatus.subscription &&
-        <div>Thank you for being a Pro member</div>
-      }
-      <button className='btn-secondary' style={{ marginTop: '8px' }} onClick={handleLogoutClick}>Logout</button>
+      {authStatus.subscription && (
+        <div className="text-purple-300 text-sm mb-2">Thank you for being a Pro member</div>
+      )}
+      <button 
+        className="bg-transparent text-white border border-white/40 rounded py-1.5 px-4 text-sm cursor-pointer transition-colors mt-2 hover:bg-white/10" 
+        onClick={handleLogoutClick}
+      >
+        Logout
+      </button>
     </div>
   );
 });

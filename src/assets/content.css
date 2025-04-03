@@ -1,4 +1,11 @@
-.pump-highlight {
+/* Styles for Solhound content script - scoped to avoid affecting webpage styles */
+
+/* Use a single parent class to scope all styles */
+.sol-hound-highlight {
+  all: revert; /* Reset any inherited styles from the webpage */
+}
+
+.sol-hound-highlight .pump-highlight {
   background-image: linear-gradient(
     to right,
     #00ff00 15%,
@@ -12,13 +19,13 @@
   padding: 2px;
   border-radius: 4px;
   font-weight: bold;
-  color: white;
+  color: white !important;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: pump-sweep 0.75s infinite linear;
+  animation: solhound-pump-sweep 0.75s infinite linear;
 }
 
-@keyframes pump-sweep {
+@keyframes solhound-pump-sweep {
   0% {
     background-position: 0% 50%;
   }
@@ -27,7 +34,7 @@
   }
 }
 
-.solana-highlight {
+.sol-hound-highlight .solana-highlight {
   background-image: linear-gradient(
     to right,
     #9945ff 15%,
@@ -41,13 +48,13 @@
   padding: 2px;
   border-radius: 4px;
   font-weight: bold;
-  color: white;
+  color: white !important;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: solana-sweep 0.75s infinite linear;
+  animation: solhound-solana-sweep 0.75s infinite linear;
 }
 
-@keyframes solana-sweep {
+@keyframes solhound-solana-sweep {
   0% {
     background-position: 0% 50%;
   }
@@ -56,17 +63,17 @@
   }
 }
 
-.verifying .spinner {
+.sol-hound-highlight .verifying .spinner {
   display: inline-block;
   margin-left: 4px;
-  animation: spin 1s linear infinite;
+  animation: solhound-spin 1s linear infinite;
 }
 
-@keyframes spin {
+@keyframes solhound-spin {
   0% {
     transform: rotate(0deg);
   }
   100% {
     transform: rotate(360deg);
   }
-}
+} 

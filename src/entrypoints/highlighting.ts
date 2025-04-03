@@ -93,6 +93,9 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
             ? "pump-highlight animated-highlight"
             : "solana-highlight animated-highlight";
           
+          // Add the sol-hound-highlight class to ensure our styles are scoped
+          span.classList.add("sol-hound-highlight");
+          
           span.addEventListener("click", async (e) => {
             // Prevent default navigation if a link is clicked
             e.preventDefault();
