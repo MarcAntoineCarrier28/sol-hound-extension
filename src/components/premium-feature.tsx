@@ -52,7 +52,7 @@ const PremiumFeature: React.FC<PremiumFeatureProps> = ({
           <span 
             className={`absolute cursor-pointer inset-0 rounded-full transition-all duration-300 before:content-[''] before:absolute before:h-4 before:w-4 before:left-1 before:bottom-1 before:bg-white before:rounded-full before:transition-all before:duration-300 ${
               checked 
-                ? 'bg-purple-600 before:translate-x-4' 
+                ? 'bg-green-400 before:translate-x-4' 
                 : 'bg-gray-400'
             } ${isLocked ? 'cursor-not-allowed' : ''}`}
           ></span>
