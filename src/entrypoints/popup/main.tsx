@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import './style.css';
+import '@/assets/tailwind.css';
 
 // StrictMode causes double rendering which is good for development
 // but can slow down the popup in production

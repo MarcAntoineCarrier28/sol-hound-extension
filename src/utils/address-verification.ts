@@ -1,7 +1,8 @@
 // src/utils/address-verification.ts
-import { storage } from "@wxt-dev/storage";
+import { storage } from "#imports";
 import { getUrlForAddress, getTradingPlatformUrl } from "@/data/const";
 import { config, log, logError } from "@/utils/environment";
+import { getStoredAuthStatus } from "@/utils/auth-storage";
 
 // Address type definition
 export type AddressType = "token" | "wallet" | "unknown";
@@ -70,15 +71,24 @@ export async function verifyAddressType(address: string): Promise<AddressType> {
   }
 
   try {
+    // Get the stored auth status to use for authentication
+    const authStatus = await getStoredAuthStatus();
+    const sessionId = authStatus.session?.user?.id;
+    
     // Get API URL from environment config
     const apiEndpoint = `${config.apiUrl}/verify-address`;
     log(`Verifying address ${address} with endpoint ${apiEndpoint}`);
 
-    // Call our API endpoint
+    // Call our API endpoint with authentication
     const response = await fetch(apiEndpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ address })
+      headers: { 
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        address,
+        session: authStatus.session
+      })
     });
 
     if (response.ok) {

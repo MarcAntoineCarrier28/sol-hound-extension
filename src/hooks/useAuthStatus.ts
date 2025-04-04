@@ -32,7 +32,6 @@ const fetchAuthStatus = async (): Promise<AuthStatus> => {
       log('Fetching auth status...');
       const response = await fetch(API_ENDPOINT, {
         method: 'GET',
-        credentials: 'include', // Ensures cookies are sent with the request
       });
 
       let newStatus: AuthStatus;
@@ -44,7 +43,7 @@ const fetchAuthStatus = async (): Promise<AuthStatus> => {
           subscription: data.subscription,
         };
       } else {
-        log(`Problem fetching auth status: ${response.status}`);
+        log(`Problem fetching auth status, session terminated`);
         // In case of an error (e.g., 401 Unauthorized)
         newStatus = { session: null, subscription: null };
       }

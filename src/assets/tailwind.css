@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+/* Base styles for extension popup - these should not affect webpage content */
+.sol-hound-popup {
+  width: 300px;
+  max-width: 300px;
+  min-width: 300px;
+  margin: 0;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  background-color: #111827; /* bg-gray-900 */
+  color: white;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+} 

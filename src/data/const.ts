@@ -152,3 +152,79 @@ export function getTradingPlatformUrl(
   return TRADING_PLATFORMS[platformPreference]?.getUrl(address) || 
          TRADING_PLATFORMS[tradingPlatform1].getUrl(address);
 }
+
+// Highlight style presets
+export const highlightPresets = [
+  {
+    id: 'default',
+    name: 'Default',
+    solanaStyle: {
+      colors: ['#9945ff', '#14f195', '#14f195', '#9945ff'],
+      animationSpeed: 1.5
+    },
+    pumpStyle: {
+      colors: ['#00ff00', '#ffffff', '#00ff00'],
+      animationSpeed: 1.5
+    }
+  },
+  {
+    id: 'neon',
+    name: 'Neon',
+    solanaStyle: {
+      colors: ['#ff00ff', '#00ffff', '#ffff00', '#00ffff', '#ff00ff'],
+      animationSpeed: 1.8
+    },
+    pumpStyle: {
+      colors: ['#00ff99', '#ffff00', '#00ff99'],
+      animationSpeed: 1.8
+    }
+  },
+  {
+    id: 'ocean',
+    name: 'Ocean',
+    solanaStyle: {
+      colors: ['#0066ff', '#00ccff', '#00ffff', '#00ccff', '#0066ff'],
+      animationSpeed: 2.0
+    },
+    pumpStyle: {
+      colors: ['#33cc33', '#66ff66', '#99ff99', '#66ff66', '#33cc33'],
+      animationSpeed: 2.0
+    }
+  },
+  {
+    id: 'fire',
+    name: 'Fire & Ice',
+    solanaStyle: {
+      colors: ['#ff3300', '#ff9900', '#ffcc00', '#ff9900', '#ff3300'],
+      animationSpeed: 1.2
+    },
+    pumpStyle: {
+      colors: ['#00ccff', '#66ffff', '#99ffff', '#66ffff', '#00ccff'],
+      animationSpeed: 1.2
+    }
+  },
+  {
+    id: 'sunset',
+    name: 'Sunset',
+    solanaStyle: {
+      colors: ['#ff9966', '#ff6699', '#cc66ff', '#ff6699', '#ff9966'],
+      animationSpeed: 2.2
+    },
+    pumpStyle: {
+      colors: ['#ffcc00', '#ff9900', '#ff6600', '#ff9900', '#ffcc00'],
+      animationSpeed: 2.2
+    }
+  },
+  {
+    id: 'monochrome',
+    name: 'Mono',
+    solanaStyle: {
+      colors: ['#ffffff', '#aaaaaa', '#666666', '#aaaaaa', '#ffffff'],
+      animationSpeed: 1.7
+    },
+    pumpStyle: {
+      colors: ['#ffffff', '#aaaaaa', '#666666', '#aaaaaa', '#ffffff'],
+      animationSpeed: 1.7
+    }
+  }
+];

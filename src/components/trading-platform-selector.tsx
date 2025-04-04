@@ -14,17 +14,17 @@ const TradingPlatformSelector: React.FC<TradingPlatformSelectorProps> = ({
   disabled = false 
 }) => {
   return (
-    <div className={`feature trading-platform-selector ${disabled ? 'disabled' : ''}`}>
-      <span>Platform:</span>
+    <div className={`flex items-center gap-2 pl-4 mt-2 ml-4 border-l-2 border-purple-600 ${disabled ? 'opacity-50' : ''}`}>
+      <span className="text-sm text-gray-300">Platform:</span>
       <select
-        className="redirect-selector"
+        className={`bg-gray-700 text-white border border-gray-600 rounded p-1 text-sm outline-none focus:border-purple-500 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         aria-label="Select trading platform for one-click trading"
       >
         {TRADING_PLATFORM_OPTIONS.map((option) => (
-          <option key={option} value={option}>
+          <option key={option} value={option} className="bg-gray-800">
             {TRADING_PLATFORMS[option].name}
           </option>
         ))}
