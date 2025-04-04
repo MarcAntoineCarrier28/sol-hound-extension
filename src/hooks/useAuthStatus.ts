@@ -32,7 +32,6 @@ const fetchAuthStatus = async (): Promise<AuthStatus> => {
       log('Fetching auth status...');
       const response = await fetch(API_ENDPOINT, {
         method: 'GET',
-        credentials: 'include', // Ensures cookies are sent with the request
       });
 
       let newStatus: AuthStatus;

@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from 'react';
-import { AuthStatus } from '@/utils/auth-storage';
+import { AuthStatus, setStoredAuthStatus } from '@/utils/auth-storage';
 import { baseURL } from '@/data/const';
 
 interface LoginStatusProps {
@@ -12,7 +12,11 @@ const LoginStatus: React.FC<LoginStatusProps> = memo(({ authStatus, loading }) =
     window.open(baseURL + '/sign-in', '_blank');
   }, []);
 
-  const handleLogoutClick = useCallback(() => {
+  const handleLogoutClick = useCallback(async () => {
+    // First, clear the local auth status immediately so content scripts will know
+    await setStoredAuthStatus({ session: null, subscription: null });
+    
+    // Then open the sign-out page to complete the server-side logout
     window.open(baseURL + '/sign-out', '_blank');
   }, []);
 
