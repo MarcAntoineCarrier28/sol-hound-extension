@@ -21,7 +21,7 @@ const TradingPlatformSelector: React.FC<TradingPlatformSelectorProps> = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        aria-label="Select trading platform for one-click trading"
+        aria-label="Select trading platform for quick trading"
       >
         {TRADING_PLATFORM_OPTIONS.map((option) => (
           <option key={option} value={option} className="bg-gray-800">

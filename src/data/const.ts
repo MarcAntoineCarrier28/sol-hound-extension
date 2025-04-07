@@ -9,8 +9,11 @@ export const baseURL = config.baseUrl;
 // ==========================================
 
 export const tokenExplorer1 = 'Solscan';
+export const tokenExplorer2 = 'Dex Screener';
 export const tokenExplorer3 = 'Solana-Fm';
 export const tokenExplorer4 = 'Birdeye';
+export const tokenExplorer5 = 'Raydium';
+export const tokenExplorer6 = 'Jupiter';
 
 export interface ExplorerConfig {
   name: string;
@@ -22,6 +25,10 @@ export const TOKEN_EXPLORERS: Record<string, ExplorerConfig> = {
     name: 'Solscan',
     getUrl: (address) => `https://solscan.io/token/${address}`
   },
+  [tokenExplorer2]: {
+    name: 'Dex Screener',
+    getUrl: (address) => `https://dexscreener.com/solana/${address}`
+  },
   [tokenExplorer3]: {
     name: 'Solana-Fm',
     getUrl: (address) => `https://solana.fm/address/${address}?cluster=mainnet-qn1`
@@ -29,13 +36,24 @@ export const TOKEN_EXPLORERS: Record<string, ExplorerConfig> = {
   [tokenExplorer4]: {
     name: 'Birdeye',
     getUrl: (address) => `https://birdeye.so/token/${address}?chain=solana`
-  }
+  },
+  [tokenExplorer5]: {
+    name: 'Raydium',
+    getUrl: (address) => `https://raydium.io/swap/?inputCurrency=SOL&outputCurrency=${address}`
+  },
+  [tokenExplorer6]: {
+    name: 'Jupiter',
+    getUrl: (address) => `https://jup.ag/tokens/${address}`
+  },
 };
 
 export const TOKEN_EXPLORER_OPTIONS = [
   tokenExplorer1,
+  tokenExplorer2,
   tokenExplorer3,
-  tokenExplorer4
+  tokenExplorer4,
+  tokenExplorer5,
+  tokenExplorer6
 ];
 
 // ==========================================
@@ -77,11 +95,10 @@ export const WALLET_EXPLORER_OPTIONS = [
 // Trading Platform Options
 // ==========================================
 
-export const tradingPlatform1 = 'Raydium';
-export const tradingPlatform2 = 'Photon';
-export const tradingPlatform3 = 'Bullx';
-export const tradingPlatform4 = 'Axiom';
-export const tradingPlatform5 = 'Dex Screener';
+export const tradingPlatform1 = 'Photon';
+export const tradingPlatform2 = 'Bullx';
+export const tradingPlatform3 = 'Axiom';
+export const tradingPlatform4 = 'GMGN';
 
 
 export interface TradingPlatformConfig {
@@ -91,23 +108,19 @@ export interface TradingPlatformConfig {
 
 export const TRADING_PLATFORMS: Record<string, TradingPlatformConfig> = {
   [tradingPlatform1]: {
-    name: 'Raydium',
-    getUrl: (address) => `https://raydium.io/swap/?inputCurrency=SOL&outputCurrency=${address}`
-  },
-  [tradingPlatform2]: {
     name: 'Photon',
     getUrl: (address) => `https://photon-sol.tinyastro.io/en/lp/${address}`
   },
-  [tradingPlatform3]: {
+  [tradingPlatform2]: {
     name: 'Bullx',
     getUrl: (address) => `https://neo.bullx.io/terminal?chainId=1399811149&address=${address}`
   },
-  [tradingPlatform4]: {
+  [tradingPlatform3]: {
     name: 'Axiom',
     getUrl: (address) => `https://axiom.trade/t/${address}`
   },
-  [tradingPlatform5]: {
-    name: 'Dex Screener',
+  [tradingPlatform4]: {
+    name: 'GMGN',
     getUrl: (address) => `https://dexscreener.com/solana/${address}`
   }
 };
@@ -117,7 +130,6 @@ export const TRADING_PLATFORM_OPTIONS = [
   tradingPlatform2,
   tradingPlatform3,
   tradingPlatform4,
-  tradingPlatform5,
 ];
 
 // Utility function to get URL based on address type

@@ -22,6 +22,9 @@ const PremiumFeature: React.FC<PremiumFeatureProps> = ({
   // Feature is locked if user doesn't have premium OR if it's explicitly locked
   const isLocked = !isPremium || locked;
   
+  // Determine if we should show the lock icon - only show it for non-premium users
+  const showLockIcon = !isPremium;
+  
   // If this is a toggle feature
   const isToggle = typeof onChange === 'function';
 
@@ -36,7 +39,7 @@ const PremiumFeature: React.FC<PremiumFeatureProps> = ({
     <div className={`flex justify-between items-center p-2 rounded my-1.5 bg-gray-700 ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}>
       <div className="flex items-center gap-1.5">
         <span>{label}</span>
-        {isLocked && <span className="text-sm opacity-70">🔒</span>}
+        {isLocked && showLockIcon && <span className="text-sm opacity-70">🔒</span>}
       </div>
       
       {isToggle ? (

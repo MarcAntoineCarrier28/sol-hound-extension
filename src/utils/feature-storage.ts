@@ -12,6 +12,7 @@ export interface FeatureToggles {
   enableTrading: boolean;
   enableCustomization: boolean;
   enableAnalytics: boolean;
+  enableCopyOnClick: boolean;
   // Separate redirect preferences for tokens and wallets
   tokenRedirectPreference: string;
   walletRedirectPreference: string;
@@ -34,6 +35,7 @@ const DEFAULT_TOGGLES: FeatureToggles = {
   enableTrading: false,
   enableCustomization: false,
   enableAnalytics: false,
+  enableCopyOnClick: false,
   tokenRedirectPreference: tokenExplorer1, // Default redirect for tokens
   walletRedirectPreference: walletExplorer1, // Default redirect for wallets
   tradingPlatformPreference: tradingPlatform1, // Default trading platform

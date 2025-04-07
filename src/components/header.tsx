@@ -1,5 +1,5 @@
 import { baseURL } from "@/data/const";
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useState } from "react";
 
 interface HeaderProps {
   isPro: boolean;
@@ -8,12 +8,24 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = memo(({ 
   isPro,
 }) => {
+  const [copied, setCopied] = useState(false);
+  const walletAddress = "YourSolanaWalletAddressHere"; // Replace with your actual wallet address
+  
   const handleLogoClick = useCallback(() => {
     window.open(baseURL, "_blank");
   }, []);
 
   const handleSupportClick = useCallback(() => {
     window.open(baseURL + "/#contact", "_blank");
+  }, []);
+  
+  const handleDonateClick = useCallback(() => {
+    navigator.clipboard.writeText(walletAddress)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(err => console.error('Failed to copy address:', err));
   }, []);
 
   return (
@@ -28,20 +40,35 @@ const Header: React.FC<HeaderProps> = memo(({
           <span className="text-xs ml-1 bg-purple-700 text-white px-1.5 py-0.5 rounded font-semibold">PRO</span>
         )}
       </div>
-      <button 
-        className="bg-transparent border-none cursor-pointer p-1.5 relative group"
-        id="supportButton" 
-        onClick={handleSupportClick}
-      >
-        <img 
-          src="/icon/support.png" 
-          alt="Support"
-          className="w-5 h-5 opacity-60 transition-opacity group-hover:opacity-100" 
-        />
-        <span className="absolute bottom-[-10px] left-full translate-x-[-50%] bg-black/80 text-white px-1.5 py-0.5 rounded text-[10px] whitespace-nowrap opacity-0 invisible transition-opacity group-hover:opacity-100 group-hover:visible">
-          Support
-        </span>
-      </button>
+      <div className="flex items-center">
+        <button 
+          className="bg-transparent border-none cursor-pointer p-1.5 relative group"
+          onClick={handleDonateClick}
+        >
+          <img 
+            src="/icon/donate.png" 
+            alt="Support"
+            className="w-5 h-5 opacity-60 transition-opacity group-hover:opacity-100" 
+          />
+          <span className={`absolute bottom-[-20px] left-full translate-x-[-50%] bg-black/80 text-white px-1.5 py-0.5 rounded text-[10px] whitespace-nowrap opacity-0 invisible transition-opacity group-hover:opacity-100 group-hover:visible ${copied ? 'bg-green-700' : ''}`}>
+            {copied ? 'Address copied!' : 'Donate SOL'}
+          </span>
+        </button>
+        <button 
+          className="bg-transparent border-none cursor-pointer p-1.5 relative group"
+          id="supportButton" 
+          onClick={handleSupportClick}
+        >
+          <img 
+            src="/icon/support.png" 
+            alt="Support"
+            className="w-5 h-5 opacity-60 transition-opacity group-hover:opacity-100" 
+          />
+          <span className="absolute bottom-[-20px] left-full translate-x-[-50%] bg-black/80 text-white px-1.5 py-0.5 rounded text-[10px] whitespace-nowrap opacity-0 invisible transition-opacity group-hover:opacity-100 group-hover:visible">
+            Support
+          </span>
+        </button>
+      </div>
     </div>
   );
 });

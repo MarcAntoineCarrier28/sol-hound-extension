@@ -273,7 +273,10 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
           shadow.appendChild(keyframes);
           
           // Add event listener to both the span and wrapper
-          const clickHandler = async () => {
+          const clickHandler = async (e: Event) => {
+            // Stop event propagation to prevent double-firing
+            e.stopPropagation();
+            
             // Show loading indicator
             const resetLoadingState = showLoadingState(wrapper);
             
@@ -283,6 +286,40 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
               const latestToggles = await getStoredFeatureToggles();
               const latestAuthStatus = await getStoredAuthStatus();
               const userHasPremium = !!latestAuthStatus.subscription;
+              
+              // Check if copy-on-click is enabled
+              if (latestToggles.enableCopyOnClick) {
+                // Copy address to clipboard
+                await navigator.clipboard.writeText(address);
+                
+                // Reset loading state
+                resetLoadingState();
+                
+                // Show a brief success message in the span
+                const targetElement = span.shadowRoot?.querySelector('span') || span;
+                const originalStyles = {
+                  backgroundColor: targetElement.style.backgroundColor,
+                  color: targetElement.style.color,
+                  backgroundImage: targetElement.style.backgroundImage
+                };
+                
+                targetElement.style.backgroundColor = '#22C55E'; // Green background
+                targetElement.style.backgroundImage = 'none';
+                targetElement.style.color = 'white';
+                targetElement.textContent = 'Copied!';
+                
+                // Restore original text and styles after 2 seconds
+                setTimeout(() => {
+                  targetElement.style.backgroundColor = originalStyles.backgroundColor;
+                  targetElement.style.backgroundImage = originalStyles.backgroundImage;
+                  targetElement.style.color = originalStyles.color;
+                  targetElement.textContent = address;
+                }, 2000);
+                
+                return; // Exit early, no redirect
+              }
+              
+              // If copy-on-click is not enabled, proceed with normal redirect behavior
               
               // Verify address type
               const addressType = await verifyAddressType(address);
@@ -324,10 +361,8 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
             }
           };
           
-          // Add the click event to the span inside the shadow DOM
-          span.addEventListener('click', clickHandler);
-          
-          // Also add the click event to the wrapper for added reliability
+          // Use event delegation: only add the click event to the wrapper
+          // This prevents double event firing
           wrapper.addEventListener('click', clickHandler);
           
           // Return the wrapper
