@@ -108,10 +108,9 @@ export async function verifyAddressType(address: string): Promise<AddressType> {
     logError("Error verifying address:", error);
   }
 
-  // If API call fails or returns an unknown type, default to "unknown"
-  const type: AddressType = "unknown";
-  await updateAddressCache(address, type);
-  return type;
+  // If API call fails or returns an unknown type, default to "wallet" but DON'T cache it
+  log(`Address ${address} could not be verified, treating as wallet (not cached)`);
+  return "wallet";
 }
 
 // Get proper redirect URL based on address type

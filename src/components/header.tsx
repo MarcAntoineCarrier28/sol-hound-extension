@@ -9,7 +9,7 @@ const Header: React.FC<HeaderProps> = memo(({
   isPro,
 }) => {
   const [copied, setCopied] = useState(false);
-  const walletAddress = "YourSolanaWalletAddressHere"; // Replace with your actual wallet address
+  const walletAddress = "FMEcrCcaXMyuwYZU3xQKD7VgxXLq6vQq4hASbWFENeNQ";
   
   const handleLogoClick = useCallback(() => {
     window.open(baseURL, "_blank");
