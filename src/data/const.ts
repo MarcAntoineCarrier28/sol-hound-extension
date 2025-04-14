@@ -117,7 +117,7 @@ export const TRADING_PLATFORMS: Record<string, TradingPlatformConfig> = {
   },
   [tradingPlatform3]: {
     name: 'Axiom',
-    getUrl: (address) => `https://axiom.trade/t/${address}`
+    getUrl: (address) => `https://axiom.trade/t/${address}/@hound`
   },
   [tradingPlatform4]: {
     name: 'GMGN',
