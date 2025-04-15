@@ -1,13 +1,7 @@
 import { baseURL } from "@/data/const";
 import React, { memo, useCallback, useState } from "react";
 
-interface HeaderProps {
-  isPro: boolean;
-}
-
-const Header: React.FC<HeaderProps> = memo(({ 
-  isPro,
-}) => {
+const Header = () => {
   const [copied, setCopied] = useState(false);
   const walletAddress = "FMEcrCcaXMyuwYZU3xQKD7VgxXLq6vQq4hASbWFENeNQ";
   
@@ -36,9 +30,6 @@ const Header: React.FC<HeaderProps> = memo(({
       >
         <img src="/icon/48.png" alt="Solhound Logo" className="w-8 h-8 mr-2" />
         <span className="text-xl font-['Audiowide',sans-serif]">Solhound </span>
-        {isPro && (
-          <span className="text-xs ml-1 bg-purple-700 text-white px-1.5 py-0.5 rounded font-semibold">PRO</span>
-        )}
       </div>
       <div className="flex items-center">
         <button 
@@ -71,7 +62,7 @@ const Header: React.FC<HeaderProps> = memo(({
       </div>
     </div>
   );
-});
+};
 
 Header.displayName = 'Header';
 

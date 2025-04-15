@@ -8,12 +8,16 @@ export const baseURL = config.baseUrl;
 // Token Explorer Options
 // ==========================================
 
-export const tokenExplorer1 = 'Solscan';
-export const tokenExplorer2 = 'Dex Screener';
-export const tokenExplorer3 = 'Solana-Fm';
-export const tokenExplorer4 = 'Birdeye';
-export const tokenExplorer5 = 'Raydium';
-export const tokenExplorer6 = 'Jupiter';
+export const tokenExplorer1 = 'Axiom';
+export const tokenExplorer2 = 'Bullx';
+export const tokenExplorer3 = 'Photon';
+export const tokenExplorer4 = 'GMGN';
+export const tokenExplorer5 = 'Solscan';
+export const tokenExplorer6 = 'Dex Screener';
+export const tokenExplorer7 = 'Solana-Fm';
+export const tokenExplorer8 = 'Birdeye';
+export const tokenExplorer9 = 'Raydium';
+export const tokenExplorer10 = 'Jupiter';
 
 export interface ExplorerConfig {
   name: string;
@@ -22,26 +26,42 @@ export interface ExplorerConfig {
 
 export const TOKEN_EXPLORERS: Record<string, ExplorerConfig> = {
   [tokenExplorer1]: {
+    name: 'Axiom',
+    getUrl: (address) => `https://axiom.trade/t/${address}/@hound`
+  },
+  [tokenExplorer2]: {
+    name: 'Bullx',
+    getUrl: (address) => `https://neo.bullx.io/terminal?chainId=1399811149&address=${address}`
+  },
+  [tokenExplorer3]: {
+    name: 'Photon',
+    getUrl: (address) => `https://photon-sol.tinyastro.io/en/lp/${address}`
+  },
+  [tokenExplorer4]: {
+    name: 'GMGN',
+    getUrl: (address) => `https://dexscreener.com/solana/${address}`
+  },
+  [tokenExplorer5]: {
     name: 'Solscan',
     getUrl: (address) => `https://solscan.io/token/${address}`
   },
-  [tokenExplorer2]: {
+  [tokenExplorer6]: {
     name: 'Dex Screener',
     getUrl: (address) => `https://dexscreener.com/solana/${address}`
   },
-  [tokenExplorer3]: {
+  [tokenExplorer7]: {
     name: 'Solana-Fm',
     getUrl: (address) => `https://solana.fm/address/${address}?cluster=mainnet-qn1`
   },
-  [tokenExplorer4]: {
+  [tokenExplorer8]: {
     name: 'Birdeye',
     getUrl: (address) => `https://birdeye.so/token/${address}?chain=solana`
   },
-  [tokenExplorer5]: {
+  [tokenExplorer9]: {
     name: 'Raydium',
     getUrl: (address) => `https://raydium.io/swap/?inputCurrency=SOL&outputCurrency=${address}`
   },
-  [tokenExplorer6]: {
+  [tokenExplorer10]: {
     name: 'Jupiter',
     getUrl: (address) => `https://jup.ag/tokens/${address}`
   },
@@ -53,7 +73,11 @@ export const TOKEN_EXPLORER_OPTIONS = [
   tokenExplorer3,
   tokenExplorer4,
   tokenExplorer5,
-  tokenExplorer6
+  tokenExplorer6,
+  tokenExplorer7,
+  tokenExplorer8,
+  tokenExplorer9,
+  tokenExplorer10
 ];
 
 // ==========================================
@@ -91,47 +115,6 @@ export const WALLET_EXPLORER_OPTIONS = [
   walletExplorer4
 ];
 
-// ==========================================
-// Trading Platform Options
-// ==========================================
-
-export const tradingPlatform1 = 'Photon';
-export const tradingPlatform2 = 'Bullx';
-export const tradingPlatform3 = 'Axiom';
-export const tradingPlatform4 = 'GMGN';
-
-
-export interface TradingPlatformConfig {
-  name: string;
-  getUrl: (address: string) => string;
-}
-
-export const TRADING_PLATFORMS: Record<string, TradingPlatformConfig> = {
-  [tradingPlatform1]: {
-    name: 'Photon',
-    getUrl: (address) => `https://photon-sol.tinyastro.io/en/lp/${address}`
-  },
-  [tradingPlatform2]: {
-    name: 'Bullx',
-    getUrl: (address) => `https://neo.bullx.io/terminal?chainId=1399811149&address=${address}`
-  },
-  [tradingPlatform3]: {
-    name: 'Axiom',
-    getUrl: (address) => `https://axiom.trade/t/${address}/@hound`
-  },
-  [tradingPlatform4]: {
-    name: 'GMGN',
-    getUrl: (address) => `https://dexscreener.com/solana/${address}`
-  }
-};
-
-export const TRADING_PLATFORM_OPTIONS = [
-  tradingPlatform1,
-  tradingPlatform2,
-  tradingPlatform3,
-  tradingPlatform4,
-];
-
 // Utility function to get URL based on address type
 export function getUrlForAddress(
   address: string, 
@@ -149,20 +132,10 @@ export function getUrlForAddress(
            WALLET_EXPLORERS[walletExplorer1].getUrl(address);
   } 
   else {
-    // For unknown types, default to wallet explorer
-    return WALLET_EXPLORERS[walletExplorerPreference]?.getUrl(address) || 
-           WALLET_EXPLORERS[walletExplorer1].getUrl(address);
+    // For unknown types, default to token explorer to prevent missed trades
+    return TOKEN_EXPLORERS[tokenExplorerPreference]?.getUrl(address) || 
+           TOKEN_EXPLORERS[tokenExplorer1].getUrl(address);
   }
-}
-
-// Function to get trading platform URL for premium users
-export function getTradingPlatformUrl(
-  address: string,
-  platformPreference: string
-): string {
-  
-  return TRADING_PLATFORMS[platformPreference]?.getUrl(address) || 
-         TRADING_PLATFORMS[tradingPlatform1].getUrl(address);
 }
 
 // Highlight style presets

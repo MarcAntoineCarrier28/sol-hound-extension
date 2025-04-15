@@ -6,7 +6,7 @@ alwaysApply: true
 
 # Your rule content
 
-This project is a chrome extension named SolHound, it communicates with a next.js web application in order to authenticate users (the nex.js web application is using supabase authenticate and to store user data).
+This project is a chrome extension named SolHound, it communicates with a next.js web application in order to validate addresses.
 This extension is built using the wxt framework, which uses Vite under the hood. It also uses react, typescript and tailwindcss.
 
 The goal of the extension is to detect Solana Contract Addresses inside web pages and to highlight them with some specific styling, as well as making them interactive by either copy and pasting the address on click or redirectint the user to a specific url on click.

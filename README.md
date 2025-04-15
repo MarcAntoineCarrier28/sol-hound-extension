@@ -34,7 +34,6 @@ src/
         feature-toggle.tsx
         header.tsx
         login-status.tsx
-        premium-feature.tsx
     data/
         const.ts
     entrypoints/
@@ -74,7 +73,6 @@ src/
     - **feature-toggle.tsx**: Feature toggle component.
     - **header.tsx**: Header component.
     - **login-status.tsx**: Login status component.
-    - **premium-feature.tsx**: Premium feature component.
   - **data/**: Contains data-related files.
     - **const.ts**: Constants file.
   - **entrypoints/**: Contains entry point files.

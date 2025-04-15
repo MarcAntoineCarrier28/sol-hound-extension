@@ -23,7 +23,7 @@ const ReferralLinks: React.FC = () => {
   }
   
   return (
-    <div className="pt-2">
+    <div className="pt-2 pb-2">
       <div className="text-xs text-gray-300 font-medium mb-2">Join a trading platform</div>
       <div className="flex items-center justify-center gap-3">
         {platformsWithReferrals.map((platformName) => (

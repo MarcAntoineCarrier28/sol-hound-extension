@@ -3,21 +3,11 @@ import highlightAddresses from "./highlighting";
 import { getStoredFeatureToggles } from "../utils/feature-storage";
 import { storage, defineContentScript } from "#imports";
 import { getAddressCache } from "../utils/address-verification";
-import { getStoredAuthStatus } from "../utils/auth-storage";
 
 export default defineContentScript({
   matches: ["*://*/*"],
   main(ctx) {
     (async () => {
-      // Check authentication status first
-      const authStatus = await getStoredAuthStatus();
-      const isAuthenticated = !!authStatus.session?.user?.id;
-      
-      // If user is not authenticated, don't initialize any features
-      if (!isAuthenticated) {
-        console.log('User not authenticated, SolHound features disabled');
-        return;
-      }
       
       let observer: MutationObserver | undefined;
       
@@ -97,27 +87,6 @@ export default defineContentScript({
           ) {
             // Force a refresh when customization settings change
             updateHighlighting(true, true);
-          }
-        }
-      });
-      
-      // Watch for authentication status changes
-      storage.watch("local:authStatus", (newValue, oldValue) => {
-        if (newValue) {
-          const newAuthStatus = newValue as any;
-          const oldAuthStatus = oldValue as any || {};
-          
-          const wasAuthenticated = !!oldAuthStatus.session?.user?.id;
-          const isAuthenticated = !!newAuthStatus.session?.user?.id;
-          
-          if (!wasAuthenticated && isAuthenticated) {
-            // User has logged in, initialize highlighting
-            console.log('User logged in, initializing SolHound features');
-            updateHighlighting(featureToggles.highlightCAs, true);
-          } else if (wasAuthenticated && !isAuthenticated) {
-            // User has logged out, disable highlighting
-            console.log('User logged out, disabling SolHound features');
-            updateHighlighting(false);
           }
         }
       });
