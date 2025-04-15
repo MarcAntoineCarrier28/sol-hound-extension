@@ -1,8 +1,8 @@
 {
-  "name": "Solhound — Scan and interact with Solana CA's across the web",
+  "name": "Solhound — Highlight and Interact with Solana CA's Across the Web",
   "description": "Detects and highlights Solana contract addresses on web pages.",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.1.1",
   "type": "module",
   "scripts": {
     "dev": "wxt",
