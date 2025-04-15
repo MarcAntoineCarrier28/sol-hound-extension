@@ -13,6 +13,8 @@ stats.html
 stats-*.json
 .wxt
 web-ext.config.ts
+.env.development
+.env.production
 
 # Editor directories and files
 .vscode/*
