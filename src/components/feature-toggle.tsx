@@ -5,18 +5,25 @@ interface FeatureToggleProps {
   label: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
+  disabled?: boolean;
 }
 
-const FeatureToggle: React.FC<FeatureToggleProps> = ({ label, checked, onChange }) => {
+const FeatureToggle: React.FC<FeatureToggleProps> = ({ 
+  label, 
+  checked, 
+  onChange,
+  disabled = false 
+}) => {
   return (
-    <div className="flex justify-between items-center p-2 rounded my-1.5 bg-gray-800">
+    <div className={`flex justify-between items-center p-2 rounded my-1.5 bg-gray-800 ${disabled ? 'opacity-50' : ''}`}>
       <span>{label}</span>
-      <label className="relative inline-block w-10 h-6">
+      <label className={`relative inline-block w-10 h-6 ${disabled ? 'cursor-not-allowed' : ''}`}>
         <input
           type="checkbox"
           className="opacity-0 w-0 h-0"
           checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
+          onChange={(e) => !disabled && onChange(e.target.checked)}
+          disabled={disabled}
           aria-label={`Toggle ${label}`}
         />
         <span 
@@ -24,7 +31,7 @@ const FeatureToggle: React.FC<FeatureToggleProps> = ({ label, checked, onChange 
             checked 
               ? 'bg-green-400 before:translate-x-4' 
               : 'bg-gray-400'
-          }`}
+          } ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
         ></span>
       </label>
     </div>

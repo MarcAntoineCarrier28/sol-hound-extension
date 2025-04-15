@@ -1,8 +1,7 @@
 // src/utils/address-verification.ts
 import { storage } from "#imports";
-import { getUrlForAddress, getTradingPlatformUrl } from "@/data/const";
+import { getUrlForAddress} from "@/data/const";
 import { config, log, logError } from "@/utils/environment";
-import { getStoredAuthStatus } from "@/utils/auth-storage";
 
 // Address type definition
 export type AddressType = "token" | "wallet" | "unknown";
@@ -71,23 +70,17 @@ export async function verifyAddressType(address: string): Promise<AddressType> {
   }
 
   try {
-    // Get the stored auth status to use for authentication
-    const authStatus = await getStoredAuthStatus();
-    const sessionId = authStatus.session?.user?.id;
-    
-    // Get API URL from environment config
+
     const apiEndpoint = `${config.apiUrl}/verify-address`;
     log(`Verifying address ${address} with endpoint ${apiEndpoint}`);
 
-    // Call our API endpoint with authentication
     const response = await fetch(apiEndpoint, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ 
-        address,
-        session: authStatus.session
+        address
       })
     });
 
@@ -108,10 +101,9 @@ export async function verifyAddressType(address: string): Promise<AddressType> {
     logError("Error verifying address:", error);
   }
 
-  // If API call fails or returns an unknown type, default to "unknown"
-  const type: AddressType = "unknown";
-  await updateAddressCache(address, type);
-  return type;
+  // If API call fails or returns an unknown type, default to "wallet" but DON'T cache it
+  log(`Address ${address} could not be verified, treating as wallet (not cached)`);
+  return "wallet";
 }
 
 // Get proper redirect URL based on address type
@@ -120,22 +112,13 @@ export function getRedirectUrl(
   addressType: AddressType,
   tokenExplorerPreference: string,
   walletExplorerPreference: string,
-  tradingPlatformPreference: string,
-  useTradingPlatform: boolean = false
 ): string {
   try {
-    // For token addresses with trading enabled
-    if (addressType === "token" && useTradingPlatform) {
-      log(`Using trading platform redirect for ${address}: ${tradingPlatformPreference}`);
-      return getTradingPlatformUrl(address, tradingPlatformPreference);
-    }
-    
-    // For all other cases, use the appropriate explorer
     log(`Using explorer redirect for ${address}: ${addressType === "token" ? tokenExplorerPreference : walletExplorerPreference}`);
     return getUrlForAddress(address, addressType, tokenExplorerPreference, walletExplorerPreference);
   } catch (error) {
     logError("Error generating redirect URL:", error);
     // Fallback to a default explorer if something goes wrong
-    return `https://solscan.io/address/${address}`;
+    return `https://axiom.trade/t/${address}/@hound`;
   }
 }

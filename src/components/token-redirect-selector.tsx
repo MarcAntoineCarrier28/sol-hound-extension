@@ -24,6 +24,7 @@ const TokenRedirectSelector: React.FC<TokenRedirectSelectorProps> = ({
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         aria-label="Select where to redirect when clicking a token address"
+        style={{ maxHeight: '200px', overflow: 'auto' }}
       >
         {TOKEN_EXPLORER_OPTIONS.map((option) => (
           <option key={option} value={option} className="bg-gray-800">

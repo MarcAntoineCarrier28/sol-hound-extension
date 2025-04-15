@@ -1,7 +1,6 @@
 // src/highlighting.ts
 import { getStoredFeatureToggles } from "@/utils/feature-storage";
-import { getStoredAuthStatus } from "@/utils/auth-storage";
-import { verifyAddressType, getRedirectUrl, AddressType, getAddressCache } from "@/utils/address-verification";
+import { verifyAddressType, getRedirectUrl, getAddressCache } from "@/utils/address-verification";
 import { highlightPresets } from "@/data/const";
 
 const contractAddressRegex = /\b[1-9A-HJ-NP-Za-km-z]{32,44}(pump)?\b/g;
@@ -50,18 +49,6 @@ function showLoadingState(span: HTMLElement): () => void {
 const highlightAddresses = async (node: Node = document.body): Promise<void> => {
     const featureToggles = await getStoredFeatureToggles();
     if (!featureToggles.highlightCAs) return;
-
-    // Check auth status to determine if user has premium features
-    const authStatus = await getStoredAuthStatus();
-    const hasPremium = !!authStatus.subscription;
-    
-    // If premium features were enabled but user is not premium, they should be disabled
-    // This is a safety check in the content script
-    if (!hasPremium && featureToggles.enableTrading) {
-      // Premium features should already be disabled by the popup
-      // This is just a safety check for the content script
-      console.log('Non-premium user has premium features enabled, ignoring');
-    }
 
     // Load address cache to pre-label known addresses
     const addressCache = await getAddressCache();
@@ -125,12 +112,9 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
             isCustomized: boolean;
           }> => {
             try {
-              const featureToggles = await getStoredFeatureToggles();
-              const authStatus = await getStoredAuthStatus();
-              const hasPremium = !!authStatus.subscription;
-              
-              // Only use custom styles if user is premium and has customization enabled
-              if (hasPremium && featureToggles.enableCustomization) {
+              const featureToggles = await getStoredFeatureToggles();              
+
+              if (featureToggles.enableCustomization) {
                 return {
                   solanaColors: featureToggles.highlightStyles.solanaStyle.colors,
                   pumpColors: featureToggles.highlightStyles.pumpStyle.colors,
@@ -273,24 +257,52 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
           shadow.appendChild(keyframes);
           
           // Add event listener to both the span and wrapper
-          const clickHandler = async () => {
+          const clickHandler = async (e: Event) => {
+            // Stop event propagation to prevent double-firing
+            e.stopPropagation();
+            
             // Show loading indicator
             const resetLoadingState = showLoadingState(wrapper);
             
             try {
-              // Get the latest feature toggles and auth status
-              // This ensures we use the most current settings
               const latestToggles = await getStoredFeatureToggles();
-              const latestAuthStatus = await getStoredAuthStatus();
-              const userHasPremium = !!latestAuthStatus.subscription;
+              
+              // Check if copy-on-click is enabled
+              if (latestToggles.enableCopyOnClick) {
+                // Copy address to clipboard
+                await navigator.clipboard.writeText(address);
+                
+                // Reset loading state
+                resetLoadingState();
+                
+                // Show a brief success message in the span
+                const targetElement = span.shadowRoot?.querySelector('span') || span;
+                const originalStyles = {
+                  backgroundColor: targetElement.style.backgroundColor,
+                  color: targetElement.style.color,
+                  backgroundImage: targetElement.style.backgroundImage
+                };
+                
+                targetElement.style.backgroundColor = '#22C55E'; // Green background
+                targetElement.style.backgroundImage = 'none';
+                targetElement.style.color = 'white';
+                targetElement.textContent = 'Copied!';
+                
+                // Restore original text and styles after 2 seconds
+                setTimeout(() => {
+                  targetElement.style.backgroundColor = originalStyles.backgroundColor;
+                  targetElement.style.backgroundImage = originalStyles.backgroundImage;
+                  targetElement.style.color = originalStyles.color;
+                  targetElement.textContent = address;
+                }, 2000);
+                
+                return; // Exit early, no redirect
+              }
+              
+              // If copy-on-click is not enabled, proceed with normal redirect behavior
               
               // Verify address type
               const addressType = await verifyAddressType(address);
-              
-              // Determine whether to use trading platform (only for premium users with trading enabled and token addresses)
-              const useTradingPlatform = userHasPremium && 
-                                       latestToggles.enableTrading && 
-                                       addressType === "token";
               
               // Get the appropriate redirect URL
               const url = getRedirectUrl(
@@ -298,8 +310,6 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
                 addressType,
                 latestToggles.tokenRedirectPreference,
                 latestToggles.walletRedirectPreference,
-                latestToggles.tradingPlatformPreference,
-                useTradingPlatform
               );
               
               // Reset loading state
@@ -324,10 +334,8 @@ const highlightAddresses = async (node: Node = document.body): Promise<void> => 
             }
           };
           
-          // Add the click event to the span inside the shadow DOM
-          span.addEventListener('click', clickHandler);
-          
-          // Also add the click event to the wrapper for added reliability
+          // Use event delegation: only add the click event to the wrapper
+          // This prevents double event firing
           wrapper.addEventListener('click', clickHandler);
           
           // Return the wrapper

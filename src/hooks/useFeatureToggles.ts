@@ -3,25 +3,21 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { 
   getStoredFeatureToggles, 
   setStoredFeatureToggles,
-  resetPremiumFeatures,
   FeatureToggles
 } from "@/utils/feature-storage";
 import { 
   tokenExplorer1, 
   walletExplorer1, 
-  tradingPlatform1,
   highlightPresets
 } from "@/data/const";
 
 // Default toggles available for initial render before storage is loaded
 const defaultToggles: FeatureToggles = {
   highlightCAs: true,
-  enableTrading: false,
+  enableCopyOnClick: false,
   enableCustomization: false,
-  enableAnalytics: false,
   tokenRedirectPreference: tokenExplorer1,
   walletRedirectPreference: walletExplorer1,
-  tradingPlatformPreference: tradingPlatform1,
   highlightStyles: highlightPresets[0].solanaStyle && highlightPresets[0].pumpStyle ? {
     solanaStyle: { ...highlightPresets[0].solanaStyle },
     pumpStyle: { ...highlightPresets[0].pumpStyle }
@@ -120,15 +116,6 @@ export function useFeatureToggles() {
     debouncedUpdateStorage(newToggles);
   }, [toggles, debouncedUpdateStorage]);
 
-  /**
-   * Resets premium features when user logs out or premium status changes
-   */
-  const resetPremiumFeatureToggles = useCallback(async () => {
-    const resetToggles = await resetPremiumFeatures();
-    setToggles(resetToggles);
-    return resetToggles;
-  }, []);
-
   return { 
     toggles, 
     updateToggle, 
@@ -136,6 +123,5 @@ export function useFeatureToggles() {
     updateWalletRedirectPreference,
     updateTradingPlatformPreference,
     updateHighlightStyles,
-    resetPremiumFeatureToggles
   };
 }
