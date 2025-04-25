@@ -39,7 +39,7 @@ export const TOKEN_EXPLORERS: Record<string, ExplorerConfig> = {
   },
   [tokenExplorer4]: {
     name: 'GMGN',
-    getUrl: (address) => `https://dexscreener.com/solana/${address}`
+    getUrl: (address) => `https://gmgn.ai/sol/token/${address}`
   },
   [tokenExplorer5]: {
     name: 'Solscan',
@@ -88,6 +88,7 @@ export const walletExplorer1 = 'Solscan';
 export const walletExplorer2 = 'Coinstats';
 export const walletExplorer3 = 'Solana-Fm';
 export const walletExplorer4 = 'Birdeye';
+export const walletExplorer5 = 'KolScan';
 
 export const WALLET_EXPLORERS: Record<string, ExplorerConfig> = {
   [walletExplorer1]: {
@@ -105,6 +106,10 @@ export const WALLET_EXPLORERS: Record<string, ExplorerConfig> = {
   [walletExplorer4]: {
     name: 'Birdeye',
     getUrl: (address) => `https://birdeye.so/profile/${address}?chain=solana`
+  },
+  [walletExplorer5]: {
+    name: 'KolScan',
+    getUrl: (address) => `https://kolscan.io/account/${address}`
   }
 };
 
@@ -112,7 +117,8 @@ export const WALLET_EXPLORER_OPTIONS = [
   walletExplorer1,
   walletExplorer2,
   walletExplorer3,
-  walletExplorer4
+  walletExplorer4,
+  walletExplorer5
 ];
 
 // Utility function to get URL based on address type
